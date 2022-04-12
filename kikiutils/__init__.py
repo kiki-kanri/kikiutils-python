@@ -333,6 +333,7 @@ def save_image(
     """
 
     if image_file:
+        if getattr(image_file, 'read'): image_file = image_file.read()
         image_mime = get_file_mime(image_file)
 
         if image_mime[0] == 'image':
