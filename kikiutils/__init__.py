@@ -61,21 +61,21 @@ def isint_or_digit(text: int | str) -> bool:
     return is_int(text) or (is_str(text) and text.isdigit())
 
 
-def is_bytes(**args):
+def is_bytes(*args):
     """判斷是否為bytes
     """
 
     return all([type(arg) == TYPE_BYTES for arg in args])
 
 
-def is_int(**args):
+def is_int(*args):
     """判斷是否為int
     """
 
     return all([type(arg) == TYPE_INT for arg in args])
 
 
-def is_str(**args):
+def is_str(*args):
     """判斷是否為str
     """
 
