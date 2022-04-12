@@ -58,8 +58,28 @@ def isint_or_digit(text: int | str) -> bool:
     """檢查值是否為數字或是字串型態的數字
     """
 
-    return type(text) == TYPE_INT or \
-        (type(text) == TYPE_STR and text.isdigit())
+    return is_int(text) or (is_str(text) and text.isdigit())
+
+
+def is_bytes(**args):
+    """判斷是否為bytes
+    """
+
+    return all([type(arg) == TYPE_BYTES for arg in args])
+
+
+def is_int(**args):
+    """判斷是否為int
+    """
+
+    return all([type(arg) == TYPE_INT for arg in args])
+
+
+def is_str(**args):
+    """判斷是否為str
+    """
+
+    return all([type(arg) == TYPE_STR for arg in args])
 
 
 def response_is_ok(response, only_html: bool = True) -> bool:
@@ -104,9 +124,7 @@ def save_file(file, path: str, replace: bool = True) -> bool:
         with open(path, 'wb') as f: f.write(file)
         return True
     except:
-        pass
-
-    return False
+        return False
 
 
 def save_file_as_bytesio(
@@ -182,9 +200,7 @@ def get_int_data(data: str | int, default = None) -> int | _Any:
     """輸入字串或數字，返回數字，若字串不為純數字，返回default的值(None)
     """
 
-    return int(data) \
-        if type(data) == TYPE_STR and data.isdigit() \
-        else default
+    return int(data) if isint_or_digit(data) else default
 
 
 def get_requests_headers(
@@ -262,8 +278,8 @@ def get_response(
 
 # Image
 
-def convert_img(
-    img_file: bytes | _io.BytesIO | _io.FileIO,
+def convert_image(
+    image_file: bytes | _io.BytesIO | _io.FileIO,
     format: str = 'webp',
     quality: int = 100,
     return_bytes: bool = False
@@ -272,8 +288,8 @@ def convert_img(
     """
 
     try:
-        if type(img_file) == TYPE_BYTES: img_file = _io.BytesIO(img_file)
-        image = _Image.open(img_file)
+        if is_bytes(image_file): image_file = _io.BytesIO(image_file)
+        image = _Image.open(image_file)
 
         return save_file_as_bytesio(
             image.save,
@@ -288,7 +304,7 @@ def convert_img(
     return False
 
 
-def download_img(
+def download_image(
     url: str,
     save_path: str,
     max_size: int = 5242880,
@@ -300,30 +316,30 @@ def download_img(
     response = get_response(url)
 
     if response_is_ok(response, False):
-        img_bytes = response.content
+        image_bytes = response.content
 
-        if len(img_bytes) <= max_size:
-            return save_img(img_bytes, save_path, save_format)
+        if len(image_bytes) <= max_size:
+            return save_image(image_bytes, save_path, save_format)
 
     return False
 
 
-def save_img(
-    img_file: bytes | _io.BytesIO | _io.FileIO,
+def save_image(
+    image_file: bytes | _io.BytesIO | _io.FileIO,
     save_path: str,
     format: str = 'webp'
 ) -> bool:
     """儲存圖片
     """
 
-    if img_file:
-        img_mime = get_file_mime(img_file)
+    if image_file:
+        image_mime = get_file_mime(image_file)
 
-        if img_mime[0] == 'image':
-            if img_mime[1] != format:
-                img_file = convert_img(img_file, format, return_bytes = True)
+        if image_mime[0] == 'image':
+            if image_mime[1] != format:
+                image_file = convert_image(image_file, format, return_bytes = True)
 
-            return save_file(img_file, save_path)
+            return save_file(image_file, save_path)
 
     return False
 
@@ -342,8 +358,8 @@ def s2b(text: str) -> bytes | None:
     """
 
     try:
-        if type(text) == TYPE_STR: return bytes(text, 'utf-8')
-        if type(text) != TYPE_BYTES: raise ValueError('Data is not string or bytes!')
+        if is_str(text): return bytes(text, 'utf-8')
+        if not is_bytes(text): raise ValueError('Data is not string or bytes!')
         return text
     except:
         return None
@@ -354,8 +370,8 @@ def b2s(byte: bytes) -> str | None:
     """
 
     try:
-        if type(byte) == TYPE_BYTES: return bytes.decode(byte)
-        if type(byte) != TYPE_STR: raise ValueError('Data is not bytes or string!')
+        if is_bytes(byte): return bytes.decode(byte)
+        if not is_str(byte): raise ValueError('Data is not bytes or string!')
         return byte
     except:
         return None
@@ -363,7 +379,7 @@ def b2s(byte: bytes) -> str | None:
 
 # Text
 
-def search_text(pattern, text: str) -> str | None:
+def search_text(pattern: _re.Pattern, text: str) -> str | None:
     """搜尋指定字串並回傳該字串
     """
 
@@ -373,21 +389,21 @@ def search_text(pattern, text: str) -> str | None:
 
 # Time
 
-def change_time_to_int(str_time: str) -> int:
+def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S') -> int:
     """將字串時間轉為timestamp
     """
 
-    str_time = str_time.strftime('%Y-%m-%d %a %H:%M:%S')
-    array_time = _time.strptime(str_time, '%Y-%m-%d %a %H:%M:%S')
+    str_time = str_time.strftime(str_format)
+    array_time = _time.strptime(str_time, str_format)
     return int(_time.mktime(array_time))
 
-def now_time(get_timestamp: bool = False) -> str | int:
+def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S') -> str | int:
     """獲取現在時間
     """
 
     now = _datetime.datetime.now()
     return int(_time.mktime(now.timetuple())) \
-        if get_timestamp else str(now.strftime('%Y-%m-%d %a %H:%M:%S'))
+        if get_timestamp else str(now.strftime(str_format))
 
 def now_time_utc() -> int:
     """獲取UTC現在時間
