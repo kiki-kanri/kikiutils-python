@@ -9,7 +9,7 @@ setup(
     packages = ['kikiutils'],
     include_package_data=True,
     zip_safe = True,
-    version = '1.1.2',
+    version = '1.1.3',
     description = 'Utils functions',
     author = 'kiki-kanri',
     author_email = 'a470666@gmail.com',

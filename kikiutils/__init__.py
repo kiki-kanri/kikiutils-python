@@ -327,14 +327,15 @@ def download_image(
 def save_image(
     image_file: bytes | _io.BytesIO | _io.FileIO,
     save_path: str,
-    format: str = 'webp'
+    format: str = 'webp',
+    image_mime: list = None
 ) -> bool:
     """儲存圖片
     """
 
     if image_file:
-        if getattr(image_file, 'read'): image_file = image_file.read()
-        image_mime = get_file_mime(image_file)
+        if getattr(image_file, 'read', None): image_file = image_file.read()
+        if not image_mime: image_mime = get_file_mime(image_file)
 
         if image_mime[0] == 'image':
             if image_mime[1] != format:
