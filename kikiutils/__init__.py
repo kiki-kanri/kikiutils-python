@@ -31,7 +31,7 @@ TYPE_BYTES = type(bytes())
 
 # Check
 
-def check_domain(domain: str) -> bool:
+def check_domain(domain: str):
     """檢查域名是否能通過ping測試
     """
 
@@ -39,7 +39,7 @@ def check_domain(domain: str) -> bool:
     return not _os.system(f'ping -c 1 -s 8 {domain}') # 若正常ping返回數值0
 
 
-def check_email(email: str) -> bool:
+def check_email(email: str):
     """檢查信箱格式是否正常且＠後域名能通過測試
     """
 
@@ -47,15 +47,23 @@ def check_email(email: str) -> bool:
     return check_domain(email.split('@')[-1])
 
 
-def check_file_type(file, allow_types: set) -> bool:
+def check_file_type(file: bytes | _io.BytesIO | _io.FileIO, allow_types: set, file_mime: list = None):
     """檢查檔案類型是否在允許清單
     """
 
-    fmime = get_file_mime(file)
-    return fmime[0] in allow_types
+    if not file_mime: file_mime = get_file_mime(file)
+    return file_mime[0] in allow_types
 
 
-def isint_or_digit(text: int | str) -> bool:
+def check_file_ext(file: bytes | _io.BytesIO | _io.FileIO, allow_exts: set, file_mime: list = None):
+    """檢查檔案副檔名是否在允許清單
+    """
+
+    if not file_mime: file_mime = get_file_mime(file)
+    return file_mime[1] in allow_exts
+
+
+def isint_or_digit(text: int | str):
     """檢查值是否為數字或是字串型態的數字
     """
 
@@ -83,7 +91,7 @@ def is_str(*args):
     return all([type(arg) == TYPE_STR for arg in args])
 
 
-def response_is_ok(response, only_html: bool = True) -> bool:
+def response_is_ok(response: _requests.Response, only_html: bool = True) -> bool:
     """檢查該response是否正常回應
     """
 
@@ -93,7 +101,7 @@ def response_is_ok(response, only_html: bool = True) -> bool:
 
 # File
 
-def create_dir(path: str) -> bool:
+def create_dir(path: str):
     """建立資料夾
     """
 
@@ -104,7 +112,7 @@ def create_dir(path: str) -> bool:
         return False
 
 
-def remove_dir(path: str) -> bool:
+def remove_dir(path: str):
     """刪除資料夾
     """
 
@@ -115,7 +123,7 @@ def remove_dir(path: str) -> bool:
         return False
 
 
-def save_file(file, path: str, replace: bool = True) -> bool:
+def save_file(file: bytes | _io.BytesIO | _io.FileIO, path: str, replace: bool = True):
     """儲存檔案
     """
 
@@ -131,13 +139,15 @@ def save_file(file, path: str, replace: bool = True) -> bool:
 def save_file_as_bytesio(
     save_fnc: _Function,
     get_bytes: bool = False,
-    **args) -> (bytes | _io.BytesIO):
+    **args
+):
     """將檔案儲存成io.BytesIO
 
     Args:
         save_fnc: 儲存檔案的Function
         get_bytes: 是否返回bytes
     """
+
     with _io.BytesIO() as output:
         save_fnc(output, **args)
         file_bytes = output.getvalue()
@@ -146,7 +156,7 @@ def save_file_as_bytesio(
     return _io.BytesIO(file_bytes)
 
 
-def move_file(path: str, target_path: str) -> bool:
+def move_file(path: str, target_path: str):
     """移動檔案或資料夾
     """
 
@@ -157,7 +167,7 @@ def move_file(path: str, target_path: str) -> bool:
         return False
 
 
-def rename(path: str, name: str) -> bool:
+def rename(path: str, name: str):
     """重新命名檔案或資料夾
     """
 
@@ -168,7 +178,7 @@ def rename(path: str, name: str) -> bool:
         return False
 
 
-def del_file(path: str) -> bool:
+def del_file(path: str):
     """刪除檔案
     """
 
@@ -181,23 +191,23 @@ def del_file(path: str) -> bool:
 
 # Get
 
-def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO) -> list | None:
+def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO):
     """獲取檔案MIME類別
     """
 
-    file = _copy.deepcopy(file).read(1024) if getattr(file, 'read', None) else file[:1024]
+    file = _copy.deepcopy(file).read(2048) if getattr(file, 'read', None) else file[:2048]
     file_mime = _magic.from_buffer(file, mime = True)
     if file_mime: return file_mime.split('/')
 
 
-def get_host(url: str) -> str:
+def get_host(url: str):
     """獲取輸入網址的host
     """
 
     return _re.sub(r'https?:\/\/', '', url).split('/')[0]
 
 
-def get_int_data(data: str | int, default = None) -> int | _Any:
+def get_int_data(data: str | int, default = None):
     """輸入字串或數字，返回數字，若字串不為純數字，返回default的值(None)
     """
 
@@ -207,7 +217,8 @@ def get_int_data(data: str | int, default = None) -> int | _Any:
 def get_requests_headers(
     url: str,
     host:bool = True,
-    referer: bool = False) -> dict:
+    referer: bool = False
+):
     """獲取requests headers
     """
 
@@ -241,7 +252,7 @@ def get_response(
     host: bool = True,
     referer: bool = False,
     timeout: int = 3
-) -> _requests.Response:
+):
     """獲取網站requests回應
     """
 
@@ -271,8 +282,7 @@ def get_response(
             else:
                 break
         except:
-            response = None
-            break
+            return None
 
     return response
 
@@ -284,7 +294,7 @@ def convert_image(
     format: str = 'webp',
     quality: int = 100,
     return_bytes: bool = False
-) -> bytes | _io.BytesIO | bool:
+):
     """將圖片轉換為其他格式
     """
 
@@ -300,9 +310,7 @@ def convert_image(
             lossless = False
         )
     except:
-        pass
-
-    return False
+        return False
 
 
 def download_image(
@@ -310,7 +318,7 @@ def download_image(
     save_path: str,
     max_size: int = 5242880,
     save_format: str = 'webp'
-) -> bool:
+):
     """下載圖片並儲存
     """
 
@@ -330,7 +338,7 @@ def save_image(
     save_path: str,
     format: str = 'webp',
     image_mime: list = None
-) -> bool:
+):
     """儲存圖片
     """
 
@@ -351,7 +359,7 @@ def save_image(
 
 _RANDOM_LETTERS = _string.ascii_letters + _string.digits
 
-def random_str(min_l: int = 8, max_l: int = 8) -> str:
+def random_str(min_l: int = 8, max_l: int = 8):
     return ''.join(_random.choice(_RANDOM_LETTERS) \
         for i in range(_random.randint(min_l, max_l)))
 
@@ -382,7 +390,7 @@ def b2s(byte: bytes) -> str | None:
 
 # Text
 
-def search_text(pattern: _re.Pattern, text: str) -> str | None:
+def search_text(pattern: _re.Pattern, text: str):
     """搜尋指定字串並回傳該字串
     """
 
@@ -392,7 +400,7 @@ def search_text(pattern: _re.Pattern, text: str) -> str | None:
 
 # Time
 
-def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S') -> int:
+def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     """將字串時間轉為timestamp
     """
 
@@ -400,7 +408,7 @@ def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S') -> int:
     array_time = _time.strptime(str_time, str_format)
     return int(_time.mktime(array_time))
 
-def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S') -> str | int:
+def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     """獲取現在時間
     """
 
