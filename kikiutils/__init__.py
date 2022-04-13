@@ -1,3 +1,4 @@
+import copy as _copy
 import datetime as _datetime
 import io as _io
 import json as _json
@@ -184,8 +185,8 @@ def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO) -> list | None:
     """獲取檔案MIME類別
     """
 
-    if is_bytes(file): file = _io.BytesIO(file)
-    file_mime = _magic.from_buffer(file.read(1024), mime = True)
+    file = _copy.deepcopy(file).read(1024) if getattr(file, 'read', None) else file[:1024]
+    file_mime = _magic.from_buffer(file, mime = True)
     if file_mime: return file_mime.split('/')
 
 
