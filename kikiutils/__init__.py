@@ -195,8 +195,10 @@ def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO):
     """獲取檔案MIME類別
     """
 
-    file = _copy.deepcopy(file).read(2048) if getattr(file, 'read', None) else file[:2048]
-    file_mime = _magic.from_buffer(file, mime = True)
+    is_file = getattr(file, 'read', None) != None
+    data = file.read(2048) if is_file else file[:2048]
+    file_mime = _magic.from_buffer(data, mime = True)
+    if is_file: file.seek(0)
     if file_mime: return file_mime.split('/')
 
 
