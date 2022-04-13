@@ -180,12 +180,12 @@ def del_file(path: str) -> bool:
 
 # Get
 
-def get_file_mime(file) -> list | None:
+def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO) -> list | None:
     """獲取檔案MIME類別
     """
 
-    file = file.read(2048) if getattr(file, 'read', None) else file[:2048]
-    file_mime = _magic.from_buffer(file, mime = True)
+    if is_bytes(file): file = _io.BytesIO(file)
+    file_mime = _magic.from_buffer(file.read(1024), mime = True)
     if file_mime: return file_mime.split('/')
 
 
