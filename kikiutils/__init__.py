@@ -26,9 +26,6 @@ TYPE_STR = type(str())
 TYPE_BYTES = type(bytes())
 
 
-# Array
-
-
 # Check
 
 def check_domain(domain: str):
@@ -355,6 +352,18 @@ def save_image(
             return save_file(image_file, save_path)
 
     return False
+
+
+# List
+
+def addItemToList(_list: list, item, repeat: bool = False):
+    if item not in _list:
+        _list.append(item)
+
+
+def removeListItem(_list: list, item):
+    if item in _list:
+        _list.remove(item)
 
 
 # String
