@@ -1,7 +1,5 @@
-import copy as _copy
 import datetime as _datetime
 import io as _io
-import json as _json
 import magic as _magic
 import os as _os
 import random as _random
@@ -14,7 +12,6 @@ import urllib3 as _urllib3
 
 from PIL import Image as _Image
 from pyclbr import Function as _Function
-from typing import Any as _Any
 
 
 _Image.MAX_IMAGE_PIXELS = None
@@ -92,8 +89,7 @@ def response_is_ok(response: _requests.Response, only_html: bool = True) -> bool
     """檢查該response是否正常回應
     """
 
-    return response and 200 <= response.status_code < 300 and \
-        (not only_html or 'text/html' in response.headers['Content-Type'])
+    return response and 200 <= response.status_code < 300 and (not only_html or 'text/html' in response.headers['Content-Type'])
 
 
 # File
@@ -356,12 +352,12 @@ def save_image(
 
 # List
 
-def addItemToList(_list: list, item, repeat: bool = False):
+def add_item_to_list(_list: list, item, repeat: bool = False):
     if item not in _list:
         _list.append(item)
 
 
-def removeListItem(_list: list, item):
+def remove_list_item(_list: list, item):
     if item in _list:
         _list.remove(item)
 
@@ -371,13 +367,11 @@ def removeListItem(_list: list, item):
 _RANDOM_LETTERS = _string.ascii_letters + _string.digits
 
 def random_str(min_l: int = 8, max_l: int = 8):
-    return ''.join(_random.choice(_RANDOM_LETTERS) \
-        for i in range(_random.randint(min_l, max_l)))
+    return ''.join(_random.choice(_RANDOM_LETTERS) for i in range(_random.randint(min_l, max_l)))
 
 
 def s2b(text: str) -> bytes | None:
-    """將字串轉為bytes
-    """
+    """Convert string to bytes."""
 
     try:
         if is_str(text): return bytes(text, 'utf-8')
@@ -388,8 +382,7 @@ def s2b(text: str) -> bytes | None:
 
 
 def b2s(byte: bytes) -> str | None:
-    """將bytes轉為字串
-    """
+    """Convert bytes to string."""
 
     try:
         if is_bytes(byte): return bytes.decode(byte)
@@ -402,8 +395,7 @@ def b2s(byte: bytes) -> str | None:
 # Text
 
 def search_text(pattern: _re.Pattern, text: str):
-    """搜尋指定字串並回傳該字串
-    """
+    """Search text by passern and return result."""
 
     result = _re.search(pattern, text)
     return result.group(0) if result else None
@@ -412,20 +404,17 @@ def search_text(pattern: _re.Pattern, text: str):
 # Time
 
 def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
-    """將字串時間轉為timestamp
-    """
+    """Convert string datetime to timestamp."""
 
     str_time = str_time.strftime(str_format)
     array_time = _time.strptime(str_time, str_format)
     return int(_time.mktime(array_time))
 
 def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
-    """獲取現在時間
-    """
+    """Get now time."""
 
     now = _datetime.datetime.now()
-    return int(_time.mktime(now.timetuple())) \
-        if get_timestamp else str(now.strftime(str_format))
+    return int(_time.mktime(now.timetuple())) if get_timestamp else str(now.strftime(str_format))
 
 def now_time_utc() -> int:
     """獲取UTC現在時間
