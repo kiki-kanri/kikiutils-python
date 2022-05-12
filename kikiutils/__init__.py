@@ -26,68 +26,59 @@ TYPE_BYTES = type(bytes())
 # Check
 
 def check_domain(domain: str):
-    """檢查域名是否能通過ping測試
-    """
+    """Check domain ping."""
 
     domain = _re.sub(r'[;|&\-\s​]', '', domain)
-    return not _os.system(f'ping -c 1 -s 8 {domain}') # 若正常ping返回數值0
+    return _os.system(f'ping -c 1 -s 8 {domain}') == 0 # 若正常ping返回數值0
 
 
 def check_email(email: str):
-    """檢查信箱格式是否正常且＠後域名能通過測試
-    """
+    """Check email format and ping the domain."""
 
     if _re.match(r'.*[+\-*/\\;&|\s​].*', email): return False
     return check_domain(email.split('@')[-1])
 
 
 def check_file_type(file: bytes | _io.BytesIO | _io.FileIO, allow_types: set, file_mime: list = None):
-    """檢查檔案類型是否在允許清單
-    """
+    """Check if the file type is in the allowed list."""
 
     if not file_mime: file_mime = get_file_mime(file)
     return file_mime[0] in allow_types
 
 
 def check_file_ext(file: bytes | _io.BytesIO | _io.FileIO, allow_exts: set, file_mime: list = None):
-    """檢查檔案副檔名是否在允許清單
-    """
+    """Check if the file ext is in the allowed list."""
 
     if not file_mime: file_mime = get_file_mime(file)
     return file_mime[1] in allow_exts
 
 
 def isint_or_digit(text: int | str):
-    """檢查值是否為數字或是字串型態的數字
-    """
+    """Check if the value is int or isdigit."""
 
     return is_int(text) or (is_str(text) and text.isdigit())
 
 
 def is_bytes(*args):
-    """判斷是否為bytes
-    """
+    """Determine whether it is bytes."""
 
     return all([type(arg) == TYPE_BYTES for arg in args])
 
 
 def is_int(*args):
-    """判斷是否為int
-    """
+    """Determine whether it is int."""
 
     return all([type(arg) == TYPE_INT for arg in args])
 
 
 def is_str(*args):
-    """判斷是否為str
-    """
+    """Determine whether it is str."""
 
     return all([type(arg) == TYPE_STR for arg in args])
 
 
 def response_is_ok(response: _requests.Response, only_html: bool = True) -> bool:
-    """檢查該response是否正常回應
-    """
+    """Check whether the response responds normally."""
 
     return response and 200 <= response.status_code < 300 and (not only_html or 'text/html' in response.headers['Content-Type'])
 
@@ -95,8 +86,7 @@ def response_is_ok(response: _requests.Response, only_html: bool = True) -> bool
 # File
 
 def create_dir(path: str):
-    """建立資料夾
-    """
+    """Create dir."""
 
     try:
         _os.makedirs(path)
@@ -106,8 +96,7 @@ def create_dir(path: str):
 
 
 def remove_dir(path: str):
-    """刪除資料夾
-    """
+    """Remove dir."""
 
     try:
         _shutil.rmtree(path)
@@ -117,8 +106,7 @@ def remove_dir(path: str):
 
 
 def save_file(file: bytes | _io.BytesIO | _io.FileIO, path: str, replace: bool = True):
-    """儲存檔案
-    """
+    """Save file."""
 
     try:
         if _os.path.exists(path) and not replace: raise FileExistsError()
@@ -132,17 +120,12 @@ def save_file(file: bytes | _io.BytesIO | _io.FileIO, path: str, replace: bool =
 def save_file_as_bytesio(
     save_fnc: _Function,
     get_bytes: bool = False,
-    **args
+    **kwargs
 ):
-    """將檔案儲存成io.BytesIO
-
-    Args:
-        save_fnc: 儲存檔案的Function
-        get_bytes: 是否返回bytes
-    """
+    """Save file to io.BytesIO."""
 
     with _io.BytesIO() as output:
-        save_fnc(output, **args)
+        save_fnc(output, **kwargs)
         file_bytes = output.getvalue()
 
     if get_bytes: return file_bytes
@@ -150,8 +133,7 @@ def save_file_as_bytesio(
 
 
 def move_file(path: str, target_path: str):
-    """移動檔案或資料夾
-    """
+    """Move file or dir."""
 
     try:
         _shutil.move(path, target_path)
@@ -161,8 +143,7 @@ def move_file(path: str, target_path: str):
 
 
 def rename(path: str, name: str):
-    """重新命名檔案或資料夾
-    """
+    """Rename file or dir."""
 
     try:
         _os.rename(path, name)
@@ -172,8 +153,7 @@ def rename(path: str, name: str):
 
 
 def del_file(path: str):
-    """刪除檔案
-    """
+    """Del file."""
 
     try:
         _os.remove(path)
@@ -185,8 +165,7 @@ def del_file(path: str):
 # Get
 
 def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO):
-    """獲取檔案MIME類別
-    """
+    """Get file mime."""
 
     is_file = getattr(file, 'read', None) != None
     data = file.read(2048) if is_file else file[:2048]
@@ -196,14 +175,13 @@ def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO):
 
 
 def get_host(url: str):
-    """獲取輸入網址的host
-    """
+    """Get the host of the input url."""
 
     return _re.sub(r'https?:\/\/', '', url).split('/')[0]
 
 
 def get_int_data(data: str | int, default = None):
-    """輸入字串或數字，返回數字，若字串不為純數字，返回default的值(None)
+    """Input int or string, if input value is not int or isdigit, return default value.
     """
 
     return int(data) if isint_or_digit(data) else default
@@ -214,8 +192,7 @@ def get_requests_headers(
     host:bool = True,
     referer: bool = False
 ):
-    """獲取requests headers
-    """
+    """Get requests headers."""
 
     http = 'http' if 'https://' not in url else 'https://'
     host = get_host(url)
@@ -248,8 +225,7 @@ def get_response(
     referer: bool = False,
     timeout: int = 3
 ):
-    """獲取網站requests回應
-    """
+    """Get the request."""
 
     max_redirect = 5
     redirect_urls = set()
@@ -290,8 +266,7 @@ def convert_image(
     quality: int = 100,
     return_bytes: bool = False
 ):
-    """將圖片轉換為其他格式
-    """
+    """Convert image to other format."""
 
     try:
         if is_bytes(image_file): image_file = _io.BytesIO(image_file)
@@ -314,8 +289,7 @@ def download_image(
     max_size: int = 5242880,
     save_format: str = 'webp'
 ):
-    """下載圖片並儲存
-    """
+    """Download image."""
 
     response = get_response(url)
 
@@ -334,7 +308,7 @@ def save_image(
     format: str = 'webp',
     image_mime: list = None
 ):
-    """儲存圖片
+    """Save image.
     """
 
     if image_file:
@@ -353,11 +327,15 @@ def save_image(
 # List
 
 def add_item_to_list(_list: list, item, repeat: bool = False):
+    """Add item to list."""
+
     if item not in _list:
         _list.append(item)
 
 
 def remove_list_item(_list: list, item):
+    """Remove list item."""
+
     if item in _list:
         _list.remove(item)
 
@@ -417,7 +395,6 @@ def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%
     return int(_time.mktime(now.timetuple())) if get_timestamp else str(now.strftime(str_format))
 
 def now_time_utc() -> int:
-    """獲取UTC現在時間
-    """
+    """Get utc now timestamp."""
 
     return now_time(True) - 28800
