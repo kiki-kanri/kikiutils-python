@@ -219,6 +219,8 @@ def get_requests_headers(
 
 def get_response(
     url: str,
+    method: str = 'POST',
+    method_data: dict = {},
     cookies: dict = {},
     headers: bool = True,
     host: bool = True,
@@ -232,17 +234,20 @@ def get_response(
 
     while max_redirect:
         try:
-            args = {
+            kwargs = {
                 'url': url,
+                'method': method,
+                'params': method_data,
+                'data': method_data,
                 'timeout': timeout,
                 'allow_redirects': False
             }
 
             if headers:
                 headers = get_requests_headers(url, host, referer)
-                args['headers'] = headers
+                kwargs['headers'] = headers
 
-            response = _requests.get(**args)
+            response = _requests.request(**kwargs)
 
             if 300 <= response.status_code <= 310:
                 redirect_to = response.headers['location']
