@@ -204,31 +204,30 @@ def get_int_data(data: str | int, default = None):
 
 def get_requests_headers(
     url: str,
-    host:bool = True,
-    referer: bool = False
+    add_host: bool = True,
+    referer: str = None
 ):
     """Get requests headers."""
 
-    http = 'http' if 'https://' not in url else 'https://'
     host = get_host(url)
 
     headers = {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
         'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
         'Sec-Fetch-Dest': 'document',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Sec-Fetch-Site': 'cross-site',
         'Sec-Fetch-Mode': 'navigate',
         'Sec-Fetch-User': '?1',
         'Sec-Ch-Ua-Mobile': '?0',
-        'Accept-Encoding': '*',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,af;q=0.6,ja;q=0.5,zh-CN;q=0.4'
     }
 
-    if host: headers['Host'] = host
-    if referer: headers['Referer'] = f'{http}://{host}/'
+    if add_host: headers['Host'] = host
+    if referer: headers['Referer'] = referer
     return headers
 
 
@@ -238,13 +237,15 @@ def get_response(
     method_data: dict = {},
     cookies: dict = {},
     headers: bool = True,
-    host: bool = True,
-    referer: bool = False,
+    extra_headers: dict = {},
+    header_add_host: bool = True,
+    header_referer: str = None,
+    max_redirect: int = 5,
     timeout: int = 3
 ):
     """Get the request."""
 
-    max_redirect = 5
+    max_redirect += 1
     redirect_urls = set()
 
     while max_redirect:
@@ -259,8 +260,11 @@ def get_response(
             }
 
             if headers:
-                headers = get_requests_headers(url, host, referer)
-                kwargs['headers'] = headers
+                headers = get_requests_headers(url, header_add_host, header_referer)
+                kwargs['headers'] = {
+                    **headers,
+                    **extra_headers
+                }
 
             response = _requests.request(**kwargs)
 
