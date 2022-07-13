@@ -1,5 +1,6 @@
 import datetime as _datetime
 import io as _io
+import json as _json
 import magic as _magic
 import os as _os
 import random as _random
@@ -10,6 +11,7 @@ import string as _string
 import time as _time
 import urllib3 as _urllib3
 
+from bs4 import BeautifulSoup
 from PIL import Image as _Image
 from pyclbr import Function as _Function
 
@@ -18,9 +20,19 @@ _Image.MAX_IMAGE_PIXELS = None
 _urllib3.disable_warnings()
 
 
-TYPE_INT = type(int())
-TYPE_STR = type(str())
 TYPE_BYTES = type(bytes())
+TYPE_DICT = type(dict())
+TYPE_INT = type(int())
+TYPE_LIST = type(list())
+TYPE_STR = type(str())
+
+
+# BS4
+
+def get_bs4_soup(html: str | bytes, features: str = 'html.parser', **kwargs):
+    """Get bs4 soup object."""
+
+    return BeautifulSoup(html, features, **kwargs)
 
 
 # Check
@@ -64,22 +76,30 @@ def check_file_ext(
 def isint_or_digit(text: int | str):
     """Check if the value is int or isdigit."""
 
-    return is_int(text) or (is_str(text) and text.isdigit())
+    return isint(text) or (isstr(text) and text.isdigit())
 
 
-def is_bytes(*args):
+def isbytes(*args):
     """Determine whether it is bytes."""
 
     return all([type(arg) == TYPE_BYTES for arg in args])
 
 
-def is_int(*args):
+def isdict(*args):
+    return all([type(arg) == TYPE_DICT for arg in args])
+
+
+def isint(*args):
     """Determine whether it is int."""
 
     return all([type(arg) == TYPE_INT for arg in args])
 
 
-def is_str(*args):
+def islist(*args):
+    return all([type(arg) == TYPE_LIST for arg in args])
+
+
+def isstr(*args):
     """Determine whether it is str."""
 
     return all([type(arg) == TYPE_STR for arg in args])
@@ -189,10 +209,11 @@ def get_file_mime(file: bytes | _io.BytesIO | _io.FileIO):
     if file_mime: return file_mime.split('/')
 
 
-def get_host(url: str):
+def get_host(url: str, get_raw_data: bool = False):
     """Get the host of the input url."""
 
-    return _re.sub(r'https?:\/\/', '', url).split('/')[0]
+    host = _urllib3.get_host(url)
+    return host if get_raw_data else host[1]
 
 
 def get_int_data(data: str | int, default = None):
@@ -212,18 +233,29 @@ def get_requests_headers(
     host = get_host(url)
 
     headers = {
-        'Connection': 'keep-alive',
-        'Cache-Control': 'max-age=0',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
-        'Sec-Fetch-Dest': 'document',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'Sec-Fetch-Site': 'cross-site',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-User': '?1',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,af;q=0.6,ja;q=0.5,zh-CN;q=0.4'
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'accept-encoding': '*',
+        'accept-language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+        'cache-control': 'max-age=0',
+        'connection': 'keep-alive',
+        'sec-ch-dpr': '1',
+        'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
+        'sec-ch-ua-arch': '"x86"',
+        'sec-ch-ua-bitness': '"64"',
+        'sec-ch-ua-full-version': '"103.0.5060.114"',
+        'sec-ch-ua-full-version-list': '".Not/A)Brand";v="99.0.0.0", "Google Chrome";v="103.0.5060.114", "Chromium";v="103.0.5060.114"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-model': '""',
+        #'sec-ch-ua-platform': '"Windows"',
+        'sec-ch-ua-platform-version': '"14.0.0"',
+        'sec-ch-ua-wow64': '?0',
+        'sec-ch-viewport-width': '1920',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+        'user-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
     }
 
     if add_host: headers['Host'] = host
@@ -241,7 +273,8 @@ def get_response(
     header_add_host: bool = True,
     header_referer: str = None,
     max_redirect: int = 5,
-    timeout: int = 3
+    timeout: int = 3,
+    verify: bool = True
 ):
     """Get the request."""
 
@@ -255,8 +288,10 @@ def get_response(
                 'method': method,
                 'params': method_data,
                 'data': method_data,
+                'cookies': cookies,
                 'timeout': timeout,
-                'allow_redirects': False
+                'allow_redirects': False,
+                'verify': verify
             }
 
             if headers:
@@ -293,7 +328,7 @@ def convert_image(
     """Convert image to other format."""
 
     try:
-        if is_bytes(image_file): image_file = _io.BytesIO(image_file)
+        if isbytes(image_file): image_file = _io.BytesIO(image_file)
         image = _Image.open(image_file)
 
         return save_file_as_bytesio(
@@ -348,6 +383,22 @@ def save_image(
     return False
 
 
+# Json file
+
+def read_json(file_path: str, encoding: str = 'utf-8'):
+    """Read json file."""
+
+    with open(file_path, 'r', encoding = encoding) as f:
+        return _json.loads(f.read())
+
+
+def save_json(file_path: str, data: dict | list, encoding: str = 'utf-8'):
+    """Save json file."""
+
+    with open(file_path, 'w', encoding = encoding) as f:
+        return f.write(_json.dumps(data))
+
+
 # List
 
 def add_item_to_list(_list: list, item, repeat: bool = False):
@@ -376,8 +427,8 @@ def s2b(text: str) -> bytes | None:
     """Convert string to bytes."""
 
     try:
-        if is_str(text): return bytes(text, 'utf-8')
-        if not is_bytes(text): raise ValueError('Data is not string or bytes!')
+        if isstr(text): return bytes(text, 'utf-8')
+        if not isbytes(text): raise ValueError('Data is not string or bytes!')
         return text
     except:
         return None
@@ -387,8 +438,8 @@ def b2s(byte: bytes) -> str | None:
     """Convert bytes to string."""
 
     try:
-        if is_bytes(byte): return bytes.decode(byte)
-        if not is_str(byte): raise ValueError('Data is not bytes or string!')
+        if isbytes(byte): return bytes.decode(byte)
+        if not isstr(byte): raise ValueError('Data is not bytes or string!')
         return byte
     except:
         return None
@@ -405,6 +456,17 @@ def search_text(pattern: _re.Pattern, text: str):
 
 # Time
 
+def get_time_zone_offset(get_type: str = 's'):
+    """Get time zone offset. Default return seconds."""
+
+    zone_offset = _time.timezone if (_time.localtime().tm_isdst == 0) else _time.altzone
+
+    if get_type == 'h':
+        return round(zone_offset / 3600)
+    else:
+        return zone_offset
+
+
 def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     """Convert string datetime to timestamp."""
 
@@ -412,13 +474,29 @@ def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     array_time = _time.strptime(str_time, str_format)
     return int(_time.mktime(array_time))
 
+
 def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     """Get now time."""
 
     now = _datetime.datetime.now()
     return int(_time.mktime(now.timetuple())) if get_timestamp else str(now.strftime(str_format))
 
-def now_time_utc() -> int:
-    """Get utc now timestamp."""
 
-    return now_time(True) - 28800
+def now_time_ms():
+    """Get now timestamp(ms)."""
+
+    return round(_time.time() * 1000)
+
+
+def now_time_utc() -> int:
+    """Get now utc timestamp."""
+
+    zone_offset = get_time_zone_offset()
+    return now_time(True) + zone_offset
+
+
+def now_time_utc_ms() -> int:
+    """Get now utc timestamp(ms)."""
+
+    zone_offset = get_time_zone_offset()
+    return now_time_ms() + (zone_offset * 1000)
