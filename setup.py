@@ -9,7 +9,7 @@ setup(
     packages = ['kikiutils'],
     include_package_data=True,
     zip_safe = True,
-    version = '1.2.5',
+    version = '1.2.6',
     description = 'Utils functions',
     author = 'kiki-kanri',
     author_email = 'a470666@gmail.com',
@@ -18,6 +18,7 @@ setup(
         'pillow',
         'requests',
         'bs4',
-        'python-magic'
+        'python-magic',
+        'python-magic-bin'
     ]
 )

@@ -361,11 +361,32 @@ def download_image(
     return False
 
 
+def get_image(
+    url: str,
+    check: bool = True
+) -> _io.BytesIO:
+    """Get image by url, return BytesIO object."""
+
+    response = get_response(url)
+
+    if response_is_ok(response, False):
+        image_bytes = response.content
+
+        if check:
+            image_mime = get_file_mime(image_bytes)
+
+            if image_mime[0] != 'image':
+                return False
+
+        return _io.BytesIO(image_bytes)
+
+
 def save_image(
     image_file: bytes | _io.BytesIO | _io.FileIO,
     save_path: str,
     format: str = 'webp',
-    image_mime: list = None
+    image_mime: list = None,
+    save_as_bytesio: bool = False
 ):
     """Save image.
     """
@@ -467,12 +488,11 @@ def get_time_zone_offset(get_type: str = 's'):
         return zone_offset
 
 
-def int_time(str_time: str, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
+def int_time(time_str: str, format_str: str = '%Y-%m-%d %a %H:%M:%S'):
     """Convert string datetime to timestamp."""
 
-    str_time = str_time.strftime(str_format)
-    array_time = _time.strptime(str_time, str_format)
-    return int(_time.mktime(array_time))
+    struct_time = _time.strptime(time_str, format_str)
+    return int(_time.mktime(struct_time))
 
 
 def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
@@ -488,14 +508,14 @@ def now_time_ms():
     return round(_time.time() * 1000)
 
 
-def now_time_utc() -> int:
+def now_time_utc():
     """Get now utc timestamp."""
 
     zone_offset = get_time_zone_offset()
     return now_time(True) + zone_offset
 
 
-def now_time_utc_ms() -> int:
+def now_time_utc_ms():
     """Get now utc timestamp(ms)."""
 
     zone_offset = get_time_zone_offset()
