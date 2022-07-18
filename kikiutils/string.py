@@ -41,13 +41,8 @@ def b2s(byte: bytes) -> str | None:
 
 # Text
 
-def search_text(
-    pattern: _re.Pattern,
-    text: str,
-    group_index: int = 0,
-    **kwargs
-):
+def search_text(pattern: _re.Pattern, text: str, group_index: int = 0):
     """Search text by passern and return result."""
 
-    result = _re.search(pattern, text, **kwargs)
+    result = _re.search(pattern, text)
     return result[group_index] if result else None
