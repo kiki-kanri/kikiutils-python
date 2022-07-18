@@ -17,13 +17,11 @@ class Dun360:
         multiprocessing_use_cpu: int = _multiprocessing.cpu_count(),
         use_multiprocessing: bool = True
     ):
-        if _isstr(bg_image):
-            if not _isfile(bg_image):
-                bg_image = _get_image(bg_image)
+        if _isstr(bg_image) and not _isfile(bg_image):
+            bg_image = _get_image(bg_image)
 
-        if _isstr(slide_image):
-            if not _isfile(slide_image):
-                slide_image = _get_image(slide_image)
+        if _isstr(slide_image) and not _isfile(slide_image):
+            slide_image = _get_image(slide_image)
 
         if not getattr(bg_image, 'convert', False):
             bg_image = _Image.open(bg_image).convert('RGB')
@@ -46,11 +44,16 @@ class Dun360:
     ):
         crop_image = bg_image.crop((dx, 0, dx + w2, h2))
         crop_cv2_image = _cv2.cvtColor(
-            _numpy.array(crop_image), _cv2.COLOR_RGB2GRAY)
+            _numpy.array(crop_image),
+            _cv2.COLOR_RGB2GRAY
+        )
+
         crop_dst_image = _cv2.Canny(crop_cv2_image, 100, 200)
         pasted_image = _cv2.add(crop_dst_image, slide_dst_image)
         sim_value = _cmp_image_sim(
-            crop_dst_image, pasted_image, resize_image=False)
+            crop_dst_image, pasted_image,
+            resize_image=False
+        )
 
         return {
             sim_value: dx
@@ -76,11 +79,16 @@ class Dun360:
                     slide_image.putpixel((w, h), (255, 255, 255, 255))
 
         # Get slide image bbox position and crop
-        box__pos = slide_image.getbbox()
-        box__pos = (box__pos[0] - 5, box__pos[1] - 5,
-                    box__pos[2] + 5, box__pos[3] + 5)
-        bg_image = bg_image.crop((0, box__pos[1], W1, box__pos[3]))
-        slide_image = slide_image.crop(box__pos)
+        box_pos = slide_image.getbbox()
+        box_pos = (
+            box_pos[0] - 5,
+            box_pos[1] - 5,
+            box_pos[2] + 5,
+            box_pos[3] + 5
+        )
+
+        bg_image = bg_image.crop((0, box_pos[1], W1, box_pos[3]))
+        slide_image = slide_image.crop(box_pos)
 
         # Get resized bg and slide image width and height
         W1, H1 = bg_image.size
@@ -88,7 +96,10 @@ class Dun360:
 
         # Use cv2.Canny to process croped slide image
         slide_cv2_image = _cv2.cvtColor(
-            _numpy.array(slide_image), _cv2.COLOR_RGB2GRAY)
+            _numpy.array(slide_image),
+            _cv2.COLOR_RGB2GRAY
+        )
+
         slide_dst_image = _cv2.Canny(slide_cv2_image, 100, 200)
         sim_results = {}
 
@@ -110,7 +121,13 @@ class Dun360:
         else:
             for dx in range(W1 - W2):
                 r = self.crop_bg_and_cmp_slide_image(
-                    bg_image, slide_dst_image, dx, W2, H2)
+                    bg_image,
+                    slide_dst_image,
+                    dx,
+                    W2,
+                    H2
+                )
+
                 sim_results.update(r)
 
         sim_list = list(sim_results.keys())
@@ -120,6 +137,8 @@ class Dun360:
         max_sim_dx = sim_results[max_sim_value] + 5
 
         return {
+            'bg_image_width': W1,
             'max_sim': max_sim_value,
-            'max_sim_dx': max_sim_dx
+            'max_sim_dx': max_sim_dx,
+            'slide_box_start_x': box_pos[0] + 5
         }
