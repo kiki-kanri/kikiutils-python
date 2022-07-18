@@ -3,7 +3,7 @@ import os as _os
 import re as _re
 import requests as _requests
 
-from .file import get_file_mime
+from .file import get_file_mime as _get_file_mime
 
 
 TYPE_BYTES = type(bytes())
@@ -38,7 +38,7 @@ def check_file_type(
     """Check if the file type is in the allowed list."""
 
     if not file_mime:
-        file_mime = get_file_mime(file)
+        file_mime = _get_file_mime(file)
     return file_mime[0] in allow_types
 
 
@@ -50,7 +50,7 @@ def check_file_ext(
     """Check if the file ext is in the allowed list."""
 
     if not file_mime:
-        file_mime = get_file_mime(file)
+        file_mime = _get_file_mime(file)
     return file_mime[1] in allow_exts
 
 

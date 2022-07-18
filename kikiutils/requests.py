@@ -1,6 +1,6 @@
 import requests as _requests
 
-from .url import get_host
+from .url import get_host as _get_host
 
 
 # Response and requests
@@ -12,7 +12,7 @@ def get_requests_headers(
 ):
     """Get requests headers."""
 
-    host = get_host(url)
+    host = _get_host(url)
 
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',

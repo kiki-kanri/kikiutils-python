@@ -4,9 +4,11 @@ import numpy as _numpy
 
 from PIL import Image as _Image
 
-from .check import isbytes, response_is_ok
-from .file import get_file_mime, save_file, save_file_as_bytesio
-from .requests import get_response
+from .check import isbytes as _isbytes, response_is_ok as _response_is_ok
+from .file import get_file_mime as _get_file_mime
+from .file import save_file as _save_file
+from .file import save_file_as_bytesio as _save_file_as_bytesio
+from .requests import get_response as _get_response
 
 
 _Image.MAX_IMAGE_PIXELS = None
@@ -23,11 +25,11 @@ def convert_image(
     """Convert image to other format, return bytes or BytesIO object."""
 
     try:
-        if isbytes(image_file):
+        if _isbytes(image_file):
             image_file = _io.BytesIO(image_file)
         image = _Image.open(image_file)
 
-        return save_file_as_bytesio(
+        return _save_file_as_bytesio(
             image.save,
             get_bytes,
             format=format,
@@ -81,9 +83,9 @@ def download_image(
     If you want to get bytes, use `get_image` method.
     """
 
-    response = get_response(url)
+    response = _get_response(url)
 
-    if response_is_ok(response, False):
+    if _response_is_ok(response, False):
         image_bytes = response.content
 
         if len(image_bytes) <= max_size:
@@ -99,13 +101,13 @@ def get_image(
 ) -> _io.BytesIO:
     """Get image by url, return bytes or BytesIO object."""
 
-    response = get_response(url)
+    response = _get_response(url)
 
-    if response_is_ok(response, False):
+    if _response_is_ok(response, False):
         image_bytes = response.content
 
         if check:
-            image_mime = get_file_mime(image_bytes)
+            image_mime = _get_file_mime(image_bytes)
 
             if image_mime[0] != 'image':
                 return False
@@ -150,13 +152,13 @@ def save_image(
         if getattr(image_file, 'read', None):
             image_file = image_file.read()
         if not image_mime:
-            image_mime = get_file_mime(image_file)
+            image_mime = _get_file_mime(image_file)
 
         if image_mime[0] == 'image':
             if image_mime[1] != format:
                 image_file = convert_image(
                     image_file, format, return_bytes=True)
 
-            return save_file(image_file, save_path)
+            return _save_file(image_file, save_path)
 
     return False

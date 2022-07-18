@@ -2,7 +2,7 @@ import random as _random
 import re as _re
 import string as _string
 
-from .check import isbytes, isstr
+from .check import isbytes as _isbytes, isstr as _isstr
 
 # String
 
@@ -17,9 +17,9 @@ def s2b(text: str) -> bytes | None:
     """Convert string to bytes."""
 
     try:
-        if isstr(text):
+        if _isstr(text):
             return bytes(text, 'utf-8')
-        if not isbytes(text):
+        if not _isbytes(text):
             raise ValueError('Data is not string or bytes!')
         return text
     except:
@@ -30,9 +30,9 @@ def b2s(byte: bytes) -> str | None:
     """Convert bytes to string."""
 
     try:
-        if isbytes(byte):
+        if _isbytes(byte):
             return bytes.decode(byte)
-        if not isstr(byte):
+        if not _isstr(byte):
             raise ValueError('Data is not bytes or string!')
         return byte
     except:
@@ -41,8 +41,8 @@ def b2s(byte: bytes) -> str | None:
 
 # Text
 
-def search_text(pattern: _re.Pattern, text: str):
+def search_text(pattern: _re.Pattern, text: str, group_index: int = 0):
     """Search text by passern and return result."""
 
     result = _re.search(pattern, text)
-    return result.group(0) if result else None
+    return result[group_index] if result else None

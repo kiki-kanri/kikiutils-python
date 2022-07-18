@@ -5,8 +5,8 @@ import numpy as _numpy
 
 from PIL import Image as _Image
 
-from .check import isfile, isstr
-from .image import cmp_image_sim, get_image
+from .check import isfile as _isfile, isstr as _isstr
+from .image import cmp_image_sim as _cmp_image_sim, get_image as _get_image
 
 
 class Dun360:
@@ -17,13 +17,13 @@ class Dun360:
         multiprocessing_use_cpu: int = _multiprocessing.cpu_count(),
         use_multiprocessing: bool = True
     ):
-        if isstr(bg_image):
-            if not isfile(bg_image):
-                bg_image = get_image(bg_image)
+        if _isstr(bg_image):
+            if not _isfile(bg_image):
+                bg_image = _get_image(bg_image)
 
-        if isstr(slide_image):
-            if not isfile(slide_image):
-                slide_image = get_image(slide_image)
+        if _isstr(slide_image):
+            if not _isfile(slide_image):
+                slide_image = _get_image(slide_image)
 
         if not getattr(bg_image, 'convert', False):
             bg_image = _Image.open(bg_image).convert('RGB')
@@ -49,7 +49,7 @@ class Dun360:
             _numpy.array(crop_image), _cv2.COLOR_RGB2GRAY)
         crop_dst_image = _cv2.Canny(crop_cv2_image, 100, 200)
         pasted_image = _cv2.add(crop_dst_image, slide_dst_image)
-        sim_value = cmp_image_sim(
+        sim_value = _cmp_image_sim(
             crop_dst_image, pasted_image, resize_image=False)
 
         return {
