@@ -38,7 +38,7 @@ setup(
     packages = ['kikiutils'],
     include_package_data=True,
     zip_safe = True,
-    version = '1.4.1',
+    version = '1.4.2',
     description = 'Utils functions',
     author = 'kiki-kanri',
     author_email = 'a470666@gmail.com',
