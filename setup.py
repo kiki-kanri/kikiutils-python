@@ -9,7 +9,8 @@ install_requires = [
     'numpy',
     'opencv-python',
     'pillow',
-    'requests',
+    'redis',
+    'requests'
 ]
 
 if os.name == 'nt':
@@ -37,7 +38,7 @@ setup(
     packages = ['kikiutils'],
     include_package_data=True,
     zip_safe = True,
-    version = '1.4.0',
+    version = '1.4.1',
     description = 'Utils functions',
     author = 'kiki-kanri',
     author_email = 'a470666@gmail.com',
