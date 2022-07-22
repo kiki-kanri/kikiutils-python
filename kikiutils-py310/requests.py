@@ -57,6 +57,7 @@ def get_response(
     extra_headers: dict = {},
     header_add_host: bool = True,
     header_referer: str = None,
+    proxies: dict = {},
     max_redirect: int = 5,
     timeout: int = 3,
     verify: bool = True
@@ -73,6 +74,7 @@ def get_response(
                 'method': method,
                 'cookies': cookies,
                 'files': files,
+                'proxies': proxies,
                 'timeout': timeout,
                 'allow_redirects': False,
                 'verify': verify
