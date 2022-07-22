@@ -52,6 +52,7 @@ def get_response(
     method: str = 'POST',
     method_data: dict = {},
     cookies: dict = {},
+    files: dict = {},
     headers: bool = True,
     extra_headers: dict = {},
     header_add_host: bool = True,
@@ -70,13 +71,17 @@ def get_response(
             kwargs = {
                 'url': url,
                 'method': method,
-                'params': method_data,
-                'data': method_data,
                 'cookies': cookies,
+                'files': files,
                 'timeout': timeout,
                 'allow_redirects': False,
                 'verify': verify
             }
+
+            if method.lower() == 'get':
+                kwargs['params'] = method_data
+            elif method.lower() == 'post':
+                kwargs['data'] = method_data
 
             if headers:
                 headers = get_requests_headers(
