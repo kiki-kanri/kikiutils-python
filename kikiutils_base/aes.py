@@ -13,7 +13,7 @@ class AesCrypt:
     def __init__(
         self, iv: Union[bytes, str],
         key: Union[bytes, str],
-        mode = AES.MODE_CBC
+        mode=AES.MODE_CBC
     ):
         iv = s2b(iv)
         key = md5(key, True)
