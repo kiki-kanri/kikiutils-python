@@ -19,8 +19,8 @@ def s2b(text: str, encoding: str = 'utf-8') -> Union[bytes, None]:
 
     try:
         if isstr(text):
-            return bytes(text, 'utf-8')
-        if not isbytes(text, encoding):
+            return bytes(text, encoding)
+        if not isbytes(text):
             raise ValueError('Data is not string or bytes!')
         return text
     except:
