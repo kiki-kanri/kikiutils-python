@@ -14,25 +14,25 @@ def random_str(min_l: int = 8, max_l: int = 8):
     return ''.join(random.choice(_RANDOM_LETTERS) for i in range(random.randint(min_l, max_l)))
 
 
-def s2b(text: str) -> Union[bytes, None]:
+def s2b(text: str, encoding: str = 'utf-8') -> Union[bytes, None]:
     """Convert string to bytes."""
 
     try:
         if isstr(text):
             return bytes(text, 'utf-8')
-        if not isbytes(text):
+        if not isbytes(text, encoding):
             raise ValueError('Data is not string or bytes!')
         return text
     except:
         return None
 
 
-def b2s(byte: bytes) -> Union[str, None]:
+def b2s(byte: bytes, encoding: str = 'utf-8') -> Union[str, None]:
     """Convert bytes to string."""
 
     try:
         if isbytes(byte):
-            return bytes.decode(byte)
+            return bytes.decode(byte, encoding)
         if not isstr(byte):
             raise ValueError('Data is not bytes or string!')
         return byte

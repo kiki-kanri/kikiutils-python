@@ -24,8 +24,10 @@ class AesCrypt:
             text = json.dumps(text)
 
         text = s2b(text)
+
         while len(text) % 16 != 0:
             text += b' '
+
         return text
 
     def encrypt(self, text: Union[dict, list, str]):

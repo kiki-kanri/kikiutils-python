@@ -79,7 +79,7 @@ class DataTransmission:
         return response
 
 
-class SecretBase:
+class DataTransmissionSecret:
     aes: AesCrypt
     data_transmission: DataTransmission
 

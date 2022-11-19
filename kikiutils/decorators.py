@@ -5,11 +5,11 @@ from quart import request
 from validator import validate as _validate
 
 from .check import isdict
-from .classes import SecretBase
+from .classes import DataTransmissionSecret
 
 
 def data_transmission_api(
-    *secret_classes: SecretBase,
+    *secret_classes: DataTransmissionSecret,
     parse_json: bool = True
 ):
     def decorator(view_func):
