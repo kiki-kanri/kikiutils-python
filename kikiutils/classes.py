@@ -15,9 +15,9 @@ from .uuid import get_uuid
 class DataTransmission:
     def __init__(
         self,
-        api_base_url: str,
         iv: bytes | str,
-        key: bytes | str
+        key: bytes | str,
+        api_base_url: str = ''
     ):
         self.api_base_url = api_base_url
         self.iv = iv
@@ -67,7 +67,7 @@ class DataTransmission:
 
         response = requests.request(
             method,
-            f'{self.api_base_url}{url}',
+            url,
             data={
                 random_str(randint(4, 8), randint(9, 128)): hash_data
             },
