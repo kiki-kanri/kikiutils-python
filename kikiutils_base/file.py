@@ -1,4 +1,6 @@
+import aiofiles
 import io
+import magic
 import os
 import shutil
 
@@ -7,11 +9,32 @@ from typing import Callable, Union
 
 # File
 
-def create_dir(path: str):
-    """Create dir."""
+async def async_read_file(path: str, **kwargs):
+    """Async read file."""
+
+    async with aiofiles.open(path, 'rb', **kwargs) as f:
+        return await f.read()
+
+
+async def async_save_file(
+    path: str,
+    file: Union[bytes, io.BytesIO, io.FileIO, str],
+    replace: bool = True,
+    **kwargs
+):
+    """Async save file."""
+
+    mode = 'w' if isinstance(file, str) else 'wb'
 
     try:
-        os.makedirs(path)
+        if os.path.exists(path) and not replace:
+            raise FileExistsError()
+        if getattr(file, 'read', None):
+            file = file.read()
+
+        async with aiofiles.open(path, mode, **kwargs) as f:
+            await f.write(file)
+
         return True
     except:
         return False
@@ -20,8 +43,51 @@ def create_dir(path: str):
 def clear_dir(path: str):
     """Clear dir. (Remove and create.)"""
 
-    remove_dir(path)
-    create_dir(path)
+    rmdir(path)
+    mkdirs(path)
+
+
+def del_file(path: str):
+    """Del file."""
+
+    try:
+        os.remove(path)
+        return True
+    except:
+        return False
+
+
+def get_file_mime(file: Union[bytes, io.BytesIO, io.FileIO]):
+    """Get file mime."""
+
+    is_file = getattr(file, 'read', None) != None
+    data = file.read(2048) if is_file else file[:2048]
+    file_mime = magic.from_buffer(data, mime=True)
+
+    if is_file:
+        file.seek(0)
+    if file_mime:
+        return file_mime.split('/')
+
+
+def mkdir(path: str):
+    """Create dir."""
+
+    try:
+        os.mkdir(path)
+        return True
+    except:
+        return False
+
+
+def mkdirs(path: str):
+    """Create dir (use makedirs)."""
+
+    try:
+        os.makedirs(path)
+        return True
+    except:
+        return False
 
 
 def read_file(path: str):
@@ -35,7 +101,7 @@ def read_file(path: str):
         pass
 
 
-def remove_dir(path: str):
+def rmdir(path: str):
     """Remove dir."""
 
     try:
@@ -79,6 +145,7 @@ def save_file_as_bytesio(
 
     if get_bytes:
         return file_bytes
+
     return io.BytesIO(file_bytes)
 
 
@@ -97,16 +164,6 @@ def rename(path: str, name: str):
 
     try:
         os.rename(path, name)
-        return True
-    except:
-        return False
-
-
-def del_file(path: str):
-    """Del file."""
-
-    try:
-        os.remove(path)
         return True
     except:
         return False
