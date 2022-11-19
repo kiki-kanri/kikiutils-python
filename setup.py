@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    version='1.0.0',
+    version='1.0.1',
     description='Utils functions without cv2 and pillow',
     author='kiki-kanri',
     author_email='a470666@gmail.com',

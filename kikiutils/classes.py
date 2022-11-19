@@ -1,9 +1,12 @@
 import re
 import requests
+import time
 
 from random import randint, shuffle
 
 from .aes import AesCrypt
+from .check import isdict
+from .log import logger
 from .requests import get_response_content_type
 from .string import random_str
 from .uuid import get_uuid
@@ -95,3 +98,43 @@ class DataTransmissionSecret:
             )
         except:
             pass
+
+    @classmethod
+    def requests(
+        cls,
+        url: str,
+        data: dict = {},
+        method: str = 'post',
+        wait_success: bool = True,
+        error_log: bool = True,
+        **kwargs
+    ):
+        while True:
+            try:
+                response_data = cls.data_transmission.requests(
+                    url,
+                    data,
+                    method,
+                    **kwargs
+                )
+            except Exception as error:
+                if error_log:
+                    logger.error(f'Get data request error：{error}')
+
+                if wait_success:
+                    continue
+
+            if (
+                isdict(response_data)
+                and response_data.get('success')
+                or not isdict(response_data)
+            ):
+                return response_data
+
+            if error_log:
+                logger.error('Get data error！')
+
+            if not wait_success:
+                return None
+
+            time.sleep(1)
