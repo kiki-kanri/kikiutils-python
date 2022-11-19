@@ -1,11 +1,11 @@
 import re
 import requests
 
-from kikiutils_base.string import random_str
 from random import randint, shuffle
 
 from .aes import AesCrypt
 from .requests import get_response_content_type
+from .string import random_str
 from .uuid import get_uuid
 
 
