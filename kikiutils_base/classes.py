@@ -41,11 +41,8 @@ class DataTransmission:
         aes = AesCrypt(self.iv, self.key)
         data = {}
 
-        try:
-            for item in aes.decrypt(hash_data):
-                data[item[0]] = item[1]
-        except:
-            pass
+        for item in aes.decrypt(hash_data):
+            data[item[0]] = item[1]
 
         return data
 
@@ -80,3 +77,21 @@ class DataTransmission:
             return self.process_hash_data(response.text)
 
         return response
+
+
+class SecretBase:
+    aes: AesCrypt
+    data_transmission: DataTransmission
+
+    @classmethod
+    def hash_data(cls, data: dict):
+        return cls.data_transmission.hash_data(data)
+
+    @classmethod
+    def process_hash_data(cls, hash_data: str):
+        try:
+            return cls.data_transmission.process_hash_data(
+                hash_data
+            )
+        except:
+            pass
