@@ -15,8 +15,8 @@ from .uuid import get_uuid
 class DataTransmission:
     def __init__(
         self,
-        iv: bytes | str,
         key: bytes | str,
+        iv: bytes | str,
         api_base_url: str = ''
     ):
         self.api_base_url = api_base_url
@@ -36,12 +36,12 @@ class DataTransmission:
             data_list.append([key, value])
 
         shuffle(data_list)
-        aes = AesCrypt(self.iv, self.key)
+        aes = AesCrypt(self.key, self.iv)
         hash_data = aes.encrypt(data_list)
         return hash_data
 
     def process_hash_data(self, hash_data: str) -> dict:
-        aes = AesCrypt(self.iv, self.key)
+        aes = AesCrypt(self.key, self.iv)
         data = {}
 
         for item in aes.decrypt(hash_data):
