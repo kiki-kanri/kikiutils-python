@@ -11,13 +11,18 @@ from .hash import md5
 
 class AesCrypt:
     def __init__(
-        self, iv: Union[bytes, str],
+        self,
         key: Union[bytes, str],
+        iv: Union[bytes, str] = None,
         mode=AES.MODE_CBC
     ):
         iv = s2b(iv)
         key = md5(key, True)
-        self.cipher = AES.new(key, mode, iv=iv)
+
+        if mode == AES.MODE_ECB:
+            self.cipher = AES.new(key, mode)
+        else:
+            self.cipher = AES.new(key, mode, iv=iv)
 
     def pad(self, text: Union[dict, list, str]):
         if isdict(text) or islist(text):
