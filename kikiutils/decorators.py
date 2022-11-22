@@ -1,34 +1,39 @@
 import json
 
 from functools import wraps
-from quart import request
+from sanic import Request, text
 from validator import validate as _validate
 
 from .check import isdict
 from .classes import DataTransmissionSecret
 
 
+# DataTransmission
+
 def data_transmission_api(
-    *secret_classes: DataTransmissionSecret,
+    *transmission_classes: DataTransmissionSecret,
     parse_json: bool = True
 ):
     def decorator(view_func):
         @wraps(view_func)
-        async def wrapped_view(*args, **kwargs):
-            request_values = await request.values
+        async def wrapped_view(rq: Request, *args, **kwargs):
+            # 檢查資料
+            request_data: dict = rq.json
 
-            if len(request_values) != 1:
-                return '', 404
+            if len(request_data) != 1:
+                return text('', 404)
 
-            value = list(request_values.values())[0]
+            # 獲取加密後資料
+            value = list(request_data.values())[0]
 
-            for secret_class in secret_classes:
-                data: dict = secret_class.process_hash_data(value)
+            # 解密資料並處理
+            for transmission_class in transmission_classes:
+                data: dict = transmission_class.process_hash_data(value)
 
                 if data is not None:
                     break
             else:
-                return '', 404
+                return text('', 404)
 
             if parse_json:
                 for k, v in data.items():
@@ -37,12 +42,15 @@ def data_transmission_api(
                     except:
                         pass
 
+            # 執行Function
             result = await view_func(
+                rq,
                 request_data=data,
                 *args,
                 **kwargs
             )
 
+            # 處理Response
             response_data = {
                 'success': True
             }
@@ -54,12 +62,14 @@ def data_transmission_api(
             elif result != True:
                 return result
 
-            return secret_class.hash_data(response_data)
+            return text(transmission_class.hash_data(response_data))
 
         return wrapped_view
 
     return decorator
 
+
+# Validate
 
 def validate(
     rules: dict,
@@ -70,12 +80,14 @@ def validate(
 
     def decorator(view_func):
         @wraps(view_func)
-        async def wrapped_view(*args, **kwargs):
-            request_data: dict[str, str] = (await request.values).to_dict()
+        async def wrapped_view(request: Request, *args, **kwargs):
+            # 獲取資料並驗證
+            request_data: dict[str, list[str]] = request.form
 
-            for k, v in request_data.copy().items():
-                request_data[k] = v.strip()
+            for k, v in request_data.items():
+                request_data[k] = v[0].strip()
 
+                # Json轉換
                 if parse_json:
                     try:
                         request_data[k] = json.loads(request_data[k])
@@ -90,9 +102,9 @@ def validate(
                 else:
                     kwargs.update(data)
 
-                return await view_func(*args, **kwargs)
+                return await view_func(request, *args, **kwargs)
 
-            return '', 422
+            return text('', 422)
 
         return wrapped_view
 

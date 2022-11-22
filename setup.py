@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    version='1.0.5',
+    version='1.0.6',
     description='Utils functions without cv2 and pillow',
     author='kiki-kanri',
     author_email='a470666@gmail.com',
@@ -24,8 +24,8 @@ setup(
         'pyopenssl',
         'python-magic;platform_system=="Linux"',
         'python-magic-bin;platform_system=="Windows"',
-        'quart',
         'requests',
+        'sanic',
         'validator'
     ],
     python_requires=">=3.6"
