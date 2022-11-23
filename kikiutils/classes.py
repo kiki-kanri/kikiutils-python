@@ -78,6 +78,8 @@ class DataTransmission:
         else:
             request_kwargs['json'] = request_data
 
+        return request_kwargs
+
     def hash_data(self, data: dict):
         for _ in range(1, randint(randint(2, 5), randint(6, 16))):
             data[random_str(randint(8, 16), randint(17, 256))] = random_str(
