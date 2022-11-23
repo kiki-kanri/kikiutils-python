@@ -18,7 +18,13 @@ def data_transmission_api(
         @wraps(view_func)
         async def wrapped_view(rq: Request, *args, **kwargs):
             # 檢查資料
-            request_data: dict = rq.json
+            try:
+                request_data: dict = rq.json
+            except:
+                request_data = {}
+
+                for k in rq.form:
+                    request_data[k] = rq.form.get(k)
 
             if len(request_data) != 1:
                 return text('', 404)
