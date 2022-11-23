@@ -63,15 +63,20 @@ class DataTransmission:
             data['uuid'] = get_uuid()
 
         hash_data = self.hash_data(data)
+        request_data = {
+            random_str(randint(4, 8), randint(9, 128)): hash_data
+        }
 
-        return {
+        request_kwargs = {
             'method': method,
-            'json': {
-                random_str(randint(4, 8), randint(9, 128)): hash_data
-            },
             'url': url,
             **kwargs
         }
+
+        if kwargs.get('files'):
+            request_kwargs['data'] = request_data
+        else:
+            request_kwargs['json'] = request_data
 
     def hash_data(self, data: dict):
         for _ in range(1, randint(randint(2, 5), randint(6, 16))):
