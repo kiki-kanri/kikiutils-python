@@ -16,11 +16,7 @@ def get_host(url: str, get_raw_data: bool = False):
 
 
 def domains_is_ip(domains: list[str], ip: str):
-    return all(
-        [
-            get_domain_ip(domain) == ip
-        ] for domain in domains
-    )
+    return all([get_domain_ip(domain) == ip for domain in domains])
 
 
 def int_ip2ip(int_ip: str):
