@@ -1,5 +1,5 @@
 import random
-import re as re
+import re
 import string
 
 from typing import Union
