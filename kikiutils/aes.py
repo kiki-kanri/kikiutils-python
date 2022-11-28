@@ -1,5 +1,3 @@
-import json
-
 from binascii import a2b_hex, b2a_hex
 from Cryptodome.Cipher import AES
 from typing import Union
@@ -7,6 +5,7 @@ from typing import Union
 from .check import isdict, islist
 from .string import b2s, s2b
 from .hash import md5
+from .json import odumps, oloads
 
 
 class AesCrypt:
@@ -24,33 +23,24 @@ class AesCrypt:
         else:
             self.cipher = AES.new(key, mode, iv=iv)
 
-    def pad(self, text: Union[dict, list, str]):
-        if isdict(text) or islist(text):
-            text = json.dumps(text)
+    def pad(self, data: Union[bytes, dict, list, str]) -> bytes:
+        if isdict(data) or islist(data):
+            data = odumps(data)
 
-        text = s2b(text)
-
-        while len(text) % 16 != 0:
-            text += b' '
-
-        return text
+        data = s2b(data)
+        data += b' ' * (16 - (len(data) % 16))
+        return data
 
     def encrypt(self, text: Union[dict, list, str]):
         text = self.pad(text)
         ciphertext = self.cipher.encrypt(text)
         return b2s(b2a_hex(ciphertext))
 
-    def decrypt(self, ciphertext: str):
+    def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
         ciphertext = a2b_hex(s2b(ciphertext))
-        text = self.cipher.decrypt(ciphertext)
+        text = self.cipher.decrypt(ciphertext).rstrip()
 
         try:
-            text = b2s(text).rstrip()
-
-            try:
-                data = json.loads(text)
-                return data
-            except:
-                return text
+            return oloads(text)
         except:
-            return text.rstrip()
+            return b2s(text)

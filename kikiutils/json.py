@@ -1,22 +1,25 @@
-import json as json
-
+from orjson import dumps as odumps, loads as oloads
 from typing import Union as Union
 
 
 # Json operate
 
 def read_json(path: str, encoding: str = 'utf-8'):
-    """Read json file."""
+    """Read json file with orjson."""
 
-    with open(path, 'r', encoding=encoding) as f:
-        return json.loads(f.read())
+    with open(path, 'rb', encoding=encoding) as f:
+        return oloads(f.read())
 
 
-def save_json(path: str, data: Union[dict, list], encoding: str = 'utf-8'):
-    """Save json file."""
+def save_json(
+    path: str,
+    data: Union[dict, list],
+    encoding: str = 'utf-8'
+):
+    """Save json file with orjson."""
 
-    with open(path, 'w', encoding=encoding) as f:
-        return f.write(json.dumps(data))
+    with open(path, 'wb', encoding=encoding) as f:
+        return f.write(odumps(data))
 
 
 # List
