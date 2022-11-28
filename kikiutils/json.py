@@ -4,21 +4,17 @@ from typing import Union as Union
 
 # Json operate
 
-def read_json(path: str, encoding: str = 'utf-8'):
+def read_json(path: str):
     """Read json file with orjson."""
 
-    with open(path, 'rb', encoding=encoding) as f:
+    with open(path, 'rb') as f:
         return oloads(f.read())
 
 
-def save_json(
-    path: str,
-    data: Union[dict, list],
-    encoding: str = 'utf-8'
-):
+def save_json(path: str, data: Union[dict, list]):
     """Save json file with orjson."""
 
-    with open(path, 'wb', encoding=encoding) as f:
+    with open(path, 'wb') as f:
         return f.write(odumps(data))
 
 
