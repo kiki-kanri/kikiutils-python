@@ -28,7 +28,10 @@ class AesCrypt:
             data = odumps(data)
 
         data = s2b(data)
-        data += b' ' * (16 - (len(data) % 16))
+
+        if len(data) % 16:
+            data += b' ' * (16 - (len(data) % 16))
+
         return data
 
     def encrypt(self, text: Union[dict, list, str]):
