@@ -15,15 +15,27 @@ class AesCrypt:
         iv: Union[bytes, str] = None,
         mode=AES.MODE_CBC
     ):
-        iv = s2b(iv)
-        key = md5(key, True)
+        self.init_args = (md5(key, True), mode,)
 
-        if mode == AES.MODE_ECB:
-            self.cipher = AES.new(key, mode)
-        else:
-            self.cipher = AES.new(key, mode, iv=iv)
+        if mode != AES.MODE_ECB:
+            self.init_args += (s2b(iv),)
 
-    def pad(self, data: Union[bytes, dict, list, str]) -> bytes:
+    def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
+        ciphertext = a2b_hex(s2b(ciphertext))
+        text = AES.new(*self.init_args).decrypt(ciphertext).rstrip()
+
+        try:
+            return oloads(text)
+        except:
+            return b2s(text)
+
+    def encrypt(self, text: Union[dict, list, str]):
+        text = self.pad(text)
+        ciphertext = AES.new(*self.init_args).encrypt(text)
+        return b2s(b2a_hex(ciphertext))
+
+    @staticmethod
+    def pad(data: Union[bytes, dict, list, str]) -> bytes:
         if isdict(data) or islist(data):
             data = odumps(data)
 
@@ -33,17 +45,3 @@ class AesCrypt:
             data += b' ' * (16 - (len(data) % 16))
 
         return data
-
-    def encrypt(self, text: Union[dict, list, str]):
-        text = self.pad(text)
-        ciphertext = self.cipher.encrypt(text)
-        return b2s(b2a_hex(ciphertext))
-
-    def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
-        ciphertext = a2b_hex(s2b(ciphertext))
-        text = self.cipher.decrypt(ciphertext).rstrip()
-
-        try:
-            return oloads(text)
-        except:
-            return b2s(text)
