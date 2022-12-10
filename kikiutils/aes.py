@@ -1,9 +1,7 @@
-from binascii import a2b_hex, b2a_hex
-from Cryptodome.Cipher import AES
+from binascii import a2b_hex
+from Cryptodome.Cipher.AES import MODE_CBC, MODE_CFB, MODE_CTR, MODE_ECB, new
 from typing import Union
 
-from .check import isdict, islist
-from .string import b2s, s2b
 from .hash import md5
 from .json import odumps, oloads
 
@@ -13,35 +11,43 @@ class AesCrypt:
         self,
         key: Union[bytes, str],
         iv: Union[bytes, str] = None,
-        mode=AES.MODE_CBC
+        mode=MODE_CBC,
+        counter=None
     ):
-        self.init_args = (md5(key, True), mode,)
+        hashed_key = md5(key, True)
 
-        if mode != AES.MODE_ECB:
-            self.init_args += (s2b(iv),)
+        if mode == MODE_ECB:
+            self._get_aes = lambda: new(hashed_key, mode)
+        elif mode == MODE_CTR:
+            self._get_aes = lambda: new(hashed_key, mode, counter=counter)
+        else:
+            self._get_aes = lambda: new(hashed_key, mode, iv)
+
+        if mode == MODE_CFB:
+            self._pad = self._rstrip = lambda x: x
+        else:
+            self._pad = lambda x: x + b' ' * (16 - (len(x) % 16)) if len(x) % 16 else x
+            self._rstrip = lambda x: x.rstrip()
+
+    @staticmethod
+    def _to_bytes(data: Union[bytes, dict, list, str]) -> bytes:
+        if isinstance(data, bytes):
+            return data
+
+        if isinstance(data, (dict, list)):
+            return odumps(data)
+
+        return bytes(data, encoding='utf-8')
 
     def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
-        ciphertext = a2b_hex(s2b(ciphertext))
-        text = AES.new(*self.init_args).decrypt(ciphertext).rstrip()
+        ciphertext = a2b_hex(bytes(ciphertext, encoding='utf-8'))
+        text: bytes = self._rstrip(self._get_aes().decrypt(ciphertext))
 
         try:
             return oloads(text)
         except:
-            return b2s(text)
+            return text.decode()
 
-    def encrypt(self, text: Union[dict, list, str]):
-        text = self.pad(text)
-        ciphertext = AES.new(*self.init_args).encrypt(text)
-        return b2s(b2a_hex(ciphertext))
-
-    @staticmethod
-    def pad(data: Union[bytes, dict, list, str]) -> bytes:
-        if isdict(data) or islist(data):
-            data = odumps(data)
-
-        data = s2b(data)
-
-        if len(data) % 16:
-            data += b' ' * (16 - (len(data) % 16))
-
-        return data
+    def encrypt(self, text: Union[bytes, dict, list, str]):
+        text = self._pad(self._to_bytes(text))
+        return self._get_aes().encrypt(text).hex()
