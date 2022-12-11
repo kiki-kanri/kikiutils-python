@@ -1,7 +1,7 @@
 import os
+import platform
 import re
-
-from typing import Union
+import subprocess
 
 
 ALLOWED_EMAILS = [
@@ -18,14 +18,15 @@ ALLOWED_EMAILS = [
     'qq.com'
 ]
 
+PING_PARAM = '-n' if platform.system().lower() == 'windows' else '-c'
+
 
 # Check
 
 def check_domain(domain: str):
     """Check domain ping."""
 
-    domain = re.sub(r'[;|&\-\s​]', '', domain)
-    return os.system(f'ping -c 1 -s 8 {domain}') == 0
+    return subprocess.call(['ping', PING_PARAM, '1', domain]) == 0
 
 
 def check_email(email: str):
@@ -35,17 +36,7 @@ def check_email(email: str):
         return False
 
     domain = email.split('@')[-1].lower()
-
-    if domain.lower() in ALLOWED_EMAILS:
-        return True
-
-    return check_domain(domain)
-
-
-def isint_or_digit(text: Union[int, str]):
-    """Check if the value is int or isdigit."""
-
-    return isint(text) or (isstr(text) and text.isdigit())
+    return True if domain.lower() in ALLOWED_EMAILS else check_domain(domain)
 
 
 def isbytes(*args):
@@ -60,8 +51,14 @@ def isdict(*args):
     return all([isinstance(arg, dict) for arg in args])
 
 
+def isdir(*args):
+    """Determine whether path is dir."""
+
+    return all([os.path.isdir(arg) for arg in args])
+
+
 def isfile(*args):
-    """Determine whether it is file."""
+    """Determine whether path is file."""
 
     return all([os.path.isfile(arg) for arg in args])
 

@@ -7,6 +7,8 @@ from .json import odumps, oloads
 
 
 class AesCrypt:
+    """Padding mode is ZeroPadding."""
+
     def __init__(
         self,
         key: Union[bytes, str],
@@ -26,8 +28,8 @@ class AesCrypt:
         if mode == MODE_CFB:
             self._pad = self._rstrip = lambda x: x
         else:
-            self._pad = lambda x: x + b' ' * (16 - (len(x) % 16)) if len(x) % 16 else x
-            self._rstrip = lambda x: x.rstrip()
+            self._pad = lambda x: x + b'\00' * ((16 - (len(x) % 16)) % 16)
+            self._rstrip = lambda x: x.rstrip(b'\00')
 
     @staticmethod
     def _to_bytes(data: Union[bytes, dict, list, str]) -> bytes:
@@ -37,10 +39,10 @@ class AesCrypt:
         if isinstance(data, (dict, list)):
             return odumps(data)
 
-        return bytes(data, encoding='utf-8')
+        return data.encode('utf-8')
 
     def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
-        ciphertext = a2b_hex(bytes(ciphertext, encoding='utf-8'))
+        ciphertext = a2b_hex(ciphertext.encode('utf-8'))
         text: bytes = self._rstrip(self._get_aes().decrypt(ciphertext))
 
         try:

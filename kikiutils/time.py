@@ -1,5 +1,5 @@
-import datetime as datetime
-import time as time
+from datetime import datetime
+from time import altzone, localtime, mktime, strptime, time, timezone
 
 
 # Time
@@ -7,7 +7,7 @@ import time as time
 def get_time_zone_offset(get_type: str = 's'):
     """Get time zone offset. Default return seconds."""
 
-    zone_offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+    zone_offset = timezone if (localtime().tm_isdst == 0) else altzone
 
     if get_type == 'h':
         return round(zone_offset / 3600)
@@ -18,8 +18,8 @@ def get_time_zone_offset(get_type: str = 's'):
 def int_time(time_str: str, format_str: str = '%Y-%m-%d %a %H:%M:%S', use_zone: bool = False):
     """Convert string datetime to timestamp."""
 
-    struct_time = time.strptime(time_str, format_str)
-    timestamp = int(time.mktime(struct_time))
+    struct_time = strptime(time_str, format_str)
+    timestamp = int(mktime(struct_time))
 
     if use_zone:
         return timestamp + get_time_zone_offset()
@@ -30,14 +30,14 @@ def int_time(time_str: str, format_str: str = '%Y-%m-%d %a %H:%M:%S', use_zone: 
 def now_time(get_timestamp: bool = False, str_format: str = '%Y-%m-%d %a %H:%M:%S'):
     """Get now time."""
 
-    now = datetime.datetime.now()
-    return int(time.mktime(now.timetuple())) if get_timestamp else str(now.strftime(str_format))
+    now = datetime.now()
+    return int(mktime(now.timetuple())) if get_timestamp else str(now.strftime(str_format))
 
 
 def now_time_ms():
     """Get now timestamp(ms)."""
 
-    return round(time.time() * 1000)
+    return round(time() * 1000)
 
 
 def now_time_utc():
@@ -64,5 +64,4 @@ def str_time(
     if use_zone:
         timestamp -= get_time_zone_offset()
 
-    date_time = datetime.datetime.fromtimestamp(timestamp)
-    return date_time.strftime(str_format)
+    return datetime.fromtimestamp(timestamp).strftime(str_format)
