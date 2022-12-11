@@ -53,6 +53,10 @@ class AesCrypt:
         except:
             return text.decode()
 
-    def encrypt(self, text: Union[bytes, dict, list, str]):
-        text = self._pad(self._to_bytes(text))
-        return self._get_aes().encrypt(text).hex()
+    def encrypt(
+        self,
+        data: Union[bytes, dict, list, str],
+        return_bytes: bool = False
+    ):
+        encrypted_data = self._get_aes().encrypt(self._pad(self._to_bytes(data)))
+        return encrypted_data if return_bytes else encrypted_data.hex()
