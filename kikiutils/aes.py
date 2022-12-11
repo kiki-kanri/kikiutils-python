@@ -41,8 +41,11 @@ class AesCrypt:
 
         return data.encode('utf-8')
 
-    def decrypt(self, ciphertext: str) -> Union[dict, list, str]:
-        ciphertext = a2b_hex(ciphertext.encode('utf-8'))
+    def decrypt(self, ciphertext: Union[bytes, str]) -> Union[dict, list, str]:
+        if isinstance(ciphertext, str):
+            ciphertext = ciphertext.encode('utf-8')
+
+        ciphertext = a2b_hex(ciphertext)
         text: bytes = self._rstrip(self._get_aes().decrypt(ciphertext))
 
         try:
