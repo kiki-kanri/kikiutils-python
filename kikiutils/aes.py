@@ -18,6 +18,9 @@ class AesCrypt:
     ):
         hashed_key = md5(key, True)
 
+        if isinstance(iv, str):
+            iv = iv.encode('utf-8')
+
         if mode == MODE_ECB:
             self._get_aes = lambda: new(hashed_key, mode)
         elif mode == MODE_CTR:
