@@ -2,6 +2,18 @@ from aiofiles import open as async_open
 from orjson import dumps as odumps, loads as oloads
 from typing import Union as Union
 
+from .string import camel_to_snake, snake_to_camel
+
+
+# Dict
+
+def dict_key_camel_to_snake(data: dict[str]):
+    return {camel_to_snake(k): v for k, v in data.items()}
+
+
+def dict_key_snake_to_camel(data: dict[str]):
+    return {snake_to_camel(k): v for k, v in data.items()}
+
 
 # Json operate
 

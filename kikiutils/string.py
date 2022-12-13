@@ -10,6 +10,17 @@ from .check import isbytes, isstr
 _RANDOM_LETTERS = string.ascii_letters + string.digits
 
 
+# Case
+
+def camel_to_snake(camel_str: str):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', camel_str).lower()
+
+
+def snake_to_camel(snake_str: str):
+    components = snake_str.split('_')
+    return components[0] + ''.join(x.title() for x in components[1:])
+
+
 def random_str(min_l: int = 8, max_l: int = 8):
     return ''.join(random.choice(_RANDOM_LETTERS) for i in range(random.randint(min_l, max_l)))
 
