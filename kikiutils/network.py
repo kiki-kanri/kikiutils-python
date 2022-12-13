@@ -13,7 +13,7 @@ def get_domain_ip(domain: str):
 def get_host(url: str):
     """Get the host of the input url."""
 
-    if not re.match(r'https?:\/\/'):
+    if not re.match(r'https?:\/\/', url):
         return url
 
     return urlparse(url).hostname
