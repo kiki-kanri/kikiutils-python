@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    version='1.2.1',
+    version='1.2.2',
     description='Utils functions.',
     author='kiki-kanri',
     author_email='a470666@gmail.com',

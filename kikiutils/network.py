@@ -1,3 +1,5 @@
+import re
+
 from socket import gethostbyname
 from urllib.parse import urlparse
 
@@ -10,6 +12,9 @@ def get_domain_ip(domain: str):
 
 def get_host(url: str):
     """Get the host of the input url."""
+
+    if not re.match(r'https?:\/\/'):
+        return url
 
     return urlparse(url).hostname
 
