@@ -1,5 +1,32 @@
+import time
+
 from functools import wraps
 from inspect import iscoroutinefunction
+from typing import Callable
+
+
+def show_cost_time(view_func: Callable):
+    """Run the function and show cost time.
+
+    Supports async and sync function.
+    """
+
+    if iscoroutinefunction(view_func):
+        @wraps(view_func)
+        async def wrapped_view(*args, **kwargs):
+            se = time.time()
+            result = await view_func(*args, **kwargs)
+            print(f'Function {view_func.__name__} cost time is {time.time() - se} s')
+            return result
+        return wrapped_view
+
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        se = time.time()
+        result = view_func(*args, **kwargs)
+        print(f'Function {view_func.__name__} cost time is {time.time() - se} s')
+        return result
+    return wrapped_view
 
 
 def try_and_get_bool(view_func):
