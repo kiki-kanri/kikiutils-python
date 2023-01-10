@@ -1,13 +1,12 @@
 from binascii import a2b_hex
-from Cryptodome.Cipher.AES import MODE_CBC, MODE_CFB, MODE_CTR, MODE_ECB, new
+from Cryptodome.Cipher.AES import block_size, MODE_CBC, MODE_CFB, MODE_CTR, MODE_ECB, new
 from typing import Union
 
-from .hash import md5
 from .json import odumps, oloads
 
 
 class AesCrypt:
-    """Padding mode is ZeroPadding."""
+    """Padding mode is PKCS7 Padding."""
 
     def __init__(
         self,
@@ -16,23 +15,28 @@ class AesCrypt:
         mode=MODE_CBC,
         counter=None
     ):
-        hashed_key = md5(key, True)
+        if isinstance(key, str):
+            key = key.encode()
 
         if isinstance(iv, str):
-            iv = iv.encode('utf-8')
+            iv = iv.encode()
 
         if mode == MODE_ECB:
-            self._get_aes = lambda: new(hashed_key, mode)
+            self._get_aes = lambda: new(key, mode)
         elif mode == MODE_CTR:
-            self._get_aes = lambda: new(hashed_key, mode, counter=counter)
+            self._get_aes = lambda: new(key, mode, counter=counter)
         else:
-            self._get_aes = lambda: new(hashed_key, mode, iv)
+            self._get_aes = lambda: new(key, mode, iv)
 
         if mode == MODE_CFB:
             self._pad = self._rstrip = lambda x: x
         else:
-            self._pad = lambda x: x + b'\00' * ((16 - (len(x) % 16)) % 16)
-            self._rstrip = lambda x: x.rstrip(b'\00')
+            def _pad(data: bytes):
+                n = block_size - (len(data) % block_size)
+                return data + (chr(n).encode() * n)
+
+            self._pad = _pad
+            self._unpad = lambda x: x[:len(x)-x[-1]]
 
     @staticmethod
     def _to_bytes(data: Union[bytes, dict, list, str]) -> bytes:
@@ -49,7 +53,7 @@ class AesCrypt:
             ciphertext = ciphertext.encode('utf-8')
 
         ciphertext = a2b_hex(ciphertext)
-        text: bytes = self._rstrip(self._get_aes().decrypt(ciphertext))
+        text: bytes = self._unpad(self._get_aes().decrypt(ciphertext))
 
         try:
             return oloads(text)
