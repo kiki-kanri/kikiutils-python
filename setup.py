@@ -9,13 +9,14 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    version='1.2.7',
+    version='1.2.8',
     description='Utils functions.',
     author='kiki-kanri',
     author_email='a470666@gmail.com',
     keywords=['Utils'],
     install_requires=[
         'aiofiles',
+        'aioshutil',
         'loguru',
         'orjson',
         'pycryptodomex',
@@ -24,5 +25,5 @@ setup(
         'python-magic-bin;platform_system=="Windows"',
         'requests'
     ],
-    python_requires=">=3.6"
+    python_requires=">=3.8"
 )

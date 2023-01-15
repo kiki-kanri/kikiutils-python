@@ -65,6 +65,11 @@ def get_file_mime(file: Union[bytes, io.BytesIO, io.FileIO]):
     return file_mime.split('/')
 
 
+@try_and_get_data
+def get_file_size(path: str):
+    return os.stat(path).st_size
+
+
 @try_and_get_bool
 def mkdir(path: str):
     """Create dir."""
