@@ -1,7 +1,8 @@
-from aiofiles import open as async_open
 from orjson import dumps as odumps, loads as oloads
 from typing import Union as Union
 
+from .aiofile import aread_file, asave_file
+from .file import read_file, save_file
 from .string import camel_to_snake, snake_to_camel
 
 
@@ -17,29 +18,25 @@ def dict_key_snake_to_camel(data: dict[str]):
 
 # Json operate
 
-async def async_read_json(path: str):
+async def aread_json(path: str):
     """Async read json file with orjson."""
 
-    async with async_open(path, 'rb') as f:
-        return oloads(await f.read())
+    return oloads(await aread_file(path))
 
 
-async def async_save_json(path: str, data: Union[dict, list]):
+async def asave_json(path: str, data: Union[dict, list]):
     """Async save json file with orjson."""
 
-    async with async_open(path, 'wb') as f:
-        return await f.write(odumps(data))
+    return await asave_file(path, odumps(data))
 
 
 def read_json(path: str):
     """Read json file with orjson."""
 
-    with open(path, 'rb') as f:
-        return oloads(f.read())
+    return oloads(read_file(path))
 
 
 def save_json(path: str, data: Union[dict, list]):
     """Save json file with orjson."""
 
-    with open(path, 'wb') as f:
-        return f.write(odumps(data))
+    return save_file(path, odumps(data))

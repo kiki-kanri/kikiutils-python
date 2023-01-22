@@ -1,7 +1,5 @@
 import os
-import platform
 import re
-import subprocess
 
 
 ALLOWED_EMAILS = [
@@ -18,31 +16,36 @@ ALLOWED_EMAILS = [
     'qq.com'
 ]
 
-PING_PARAM = '-n' if platform.system().lower() == 'windows' else '-c'
+domain_pattern = re.compile(
+    r'^(?:[a-zA-Z0-9]'  # First character of the domain
+    r'(?:[a-zA-Z0-9-_]{0,61}[A-Za-z0-9])?\.)'  # Sub domain + hostname
+    r'+[A-Za-z0-9][A-Za-z0-9-_]{0,61}'  # First 61 characters of the gTLD
+    r'[A-Za-z]$'  # Last character of the gTLD
+)
 
 
 # Check
 
-def check_domain(domain: str):
-    """Check domain ping."""
+def isbytes(*args):
+    """Determine whether it is bytes."""
 
-    return subprocess.call(['ping', PING_PARAM, '1', domain]) == 0
+    return all([isinstance(arg, bytes) for arg in args])
 
 
-def check_email(email: str):
+def isdomain(domain: str):
+    """Check domain."""
+
+    return domain_pattern.match(domain) is not None
+
+
+def isemail(email: str):
     """Check email format and ping the domain."""
 
     if re.match(r'.*[+\-*/\\;&|\s​].*', email):
         return False
 
     domain = email.split('@')[-1].lower()
-    return True if domain.lower() in ALLOWED_EMAILS else check_domain(domain)
-
-
-def isbytes(*args):
-    """Determine whether it is bytes."""
-
-    return all([isinstance(arg, bytes) for arg in args])
+    return domain in ALLOWED_EMAILS or isdomain(domain)
 
 
 def isdict(*args):
