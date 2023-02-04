@@ -39,7 +39,6 @@ def get_request_headers(
     """Get requests headers."""
 
     host = get_host(url)
-
     headers = {
         **_HEADERS,
         **kwargs

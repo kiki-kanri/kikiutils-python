@@ -1,6 +1,8 @@
 import os
 import re
 
+from .typehint import PathOrStr
+
 
 ALLOWED_EMAILS = [
     'gmail.com',
@@ -54,13 +56,13 @@ def isdict(*args):
     return all([isinstance(arg, dict) for arg in args])
 
 
-def isdir(*args):
+def isdir(*args: PathOrStr):
     """Determine whether path is dir."""
 
     return all([os.path.isdir(arg) for arg in args])
 
 
-def isfile(*args):
+def isfile(*args: PathOrStr):
     """Determine whether path is file."""
 
     return all([os.path.isfile(arg) for arg in args])

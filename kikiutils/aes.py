@@ -1,6 +1,6 @@
 from binascii import a2b_hex
 from Cryptodome.Cipher.AES import block_size, MODE_CBC, MODE_CFB, MODE_CTR, MODE_ECB, new
-from typing import Union
+from typing import Optional
 
 from .json import odumps, oloads
 
@@ -10,8 +10,8 @@ class AesCrypt:
 
     def __init__(
         self,
-        key: Union[bytes, str],
-        iv: Union[bytes, str] = None,
+        key: bytes | str,
+        iv: Optional[bytes | str] = None,
         mode=MODE_CBC,
         counter=None
     ):
@@ -39,7 +39,7 @@ class AesCrypt:
             self._unpad = lambda x: x[:len(x)-x[-1]]
 
     @staticmethod
-    def _to_bytes(data: Union[bytes, dict, list, str]) -> bytes:
+    def _to_bytes(data: bytes | dict | list | str) -> bytes:
         if isinstance(data, bytes):
             return data
 
@@ -48,7 +48,7 @@ class AesCrypt:
 
         return data.encode('utf-8')
 
-    def decrypt(self, ciphertext: Union[bytes, str]) -> Union[dict, list, str]:
+    def decrypt(self, ciphertext: bytes | str) -> dict | list | str:
         if isinstance(ciphertext, str):
             ciphertext = ciphertext.encode('utf-8')
 
@@ -60,10 +60,6 @@ class AesCrypt:
         except:
             return text.decode()
 
-    def encrypt(
-        self,
-        data: Union[bytes, dict, list, str],
-        return_bytes: bool = False
-    ):
+    def encrypt(self, data: bytes | dict | list | str, return_bytes: bool = False):
         encrypted_data = self._get_aes().encrypt(self._pad(self._to_bytes(data)))
         return encrypted_data if return_bytes else encrypted_data.hex()

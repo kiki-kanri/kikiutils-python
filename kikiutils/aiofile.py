@@ -2,14 +2,14 @@ import aioshutil
 import io
 
 from aiofiles import open as aopen, os as aos
-from typing import Union
 
 from .decorators import try_and_get_bool, try_and_get_data
+from .typehint import PathOrStr
 
 
 # Async File
 
-async def aclear_dir(path: str):
+async def aclear_dir(path: PathOrStr):
     """Async clear dir (Remove and create)."""
 
     await armdir(path)
@@ -17,42 +17,42 @@ async def aclear_dir(path: str):
 
 
 @try_and_get_bool
-async def adel_file(path: str):
+async def adel_file(path: PathOrStr):
     """Async del file."""
 
     await aos.remove(path)
 
 
 @try_and_get_data
-async def aget_file_size(path: str):
+async def aget_file_size(path: PathOrStr):
     """Async get file size."""
 
     return (await aos.stat(path)).st_size
 
 
 @try_and_get_bool
-async def amkdir(path: str):
+async def amkdir(path: PathOrStr):
     """Async create dir."""
 
     await aos.mkdir(path)
 
 
 @try_and_get_bool
-async def amkdirs(path: str):
+async def amkdirs(path: PathOrStr):
     """Async create dir (use makedirs)."""
 
     await aos.makedirs(path, exist_ok=True)
 
 
 @try_and_get_bool
-async def amove_file(path: str, target_path: str):
+async def amove_file(path: PathOrStr, target_path: PathOrStr):
     """Move file or dir."""
 
     await aioshutil.move(path, target_path)
 
 
 @try_and_get_data
-async def aread_file(path: str, **kwargs):
+async def aread_file(path: PathOrStr, **kwargs):
     """Async read file."""
 
     async with aopen(path, 'rb', **kwargs) as f:
@@ -60,14 +60,14 @@ async def aread_file(path: str, **kwargs):
 
 
 @try_and_get_bool
-async def arename(path: str, name: str):
+async def arename(path: PathOrStr, name: PathOrStr):
     """Async rename file or dir."""
 
     await aos.rename(path, name)
 
 
 @try_and_get_bool
-async def armdir(path: str):
+async def armdir(path: PathOrStr):
     """Async Remove dir."""
 
     await aioshutil.rmtree(path)
@@ -75,8 +75,8 @@ async def armdir(path: str):
 
 @try_and_get_data
 async def asave_file(
-    path: str,
-    file: Union[bytes, io.BytesIO, io.FileIO, str],
+    path: PathOrStr,
+    file: bytes | io.BytesIO | io.FileIO | str,
     replace: bool = True,
     **kwargs
 ):

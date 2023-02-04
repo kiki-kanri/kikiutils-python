@@ -3,14 +3,15 @@ import magic
 import os
 import shutil
 
-from typing import Callable, Union
+from typing import Callable
 
 from .decorators import try_and_get_bool, try_and_get_data
+from .typehint import PathOrStr
 
 
 # File
 
-def clear_dir(path: str):
+def clear_dir(path: PathOrStr):
     """Clear dir (Remove and create)."""
 
     rmdir(path)
@@ -18,13 +19,13 @@ def clear_dir(path: str):
 
 
 @try_and_get_bool
-def del_file(path: str):
+def del_file(path: PathOrStr):
     """Del file."""
 
     os.remove(path)
 
 
-def get_file_mime(file: Union[bytes, io.BytesIO, io.FileIO]):
+def get_file_mime(file: bytes | io.BytesIO | io.FileIO):
     """Get file mime."""
 
     is_file = getattr(file, 'read', None) != None
@@ -38,33 +39,33 @@ def get_file_mime(file: Union[bytes, io.BytesIO, io.FileIO]):
 
 
 @try_and_get_data
-def get_file_size(path: str):
+def get_file_size(path: PathOrStr):
     return os.stat(path).st_size
 
 
 @try_and_get_bool
-def mkdir(path: str):
+def mkdir(path: PathOrStr):
     """Create dir."""
 
     os.mkdir(path)
 
 
 @try_and_get_bool
-def mkdirs(path: str):
+def mkdirs(path: PathOrStr):
     """Create dir (use makedirs)."""
 
     os.makedirs(path, exist_ok=True)
 
 
 @try_and_get_bool
-def move_file(path: str, target_path: str):
+def move_file(path: PathOrStr, target_path: PathOrStr):
     """Move file or dir."""
 
     shutil.move(path, target_path)
 
 
 @try_and_get_data
-def read_file(path: str):
+def read_file(path: PathOrStr):
     """Read file."""
 
     with open(path, 'rb') as f:
@@ -72,14 +73,14 @@ def read_file(path: str):
 
 
 @try_and_get_bool
-def rename(path: str, name: str):
+def rename(path: PathOrStr, name: PathOrStr):
     """Rename file or dir."""
 
     os.rename(path, name)
 
 
 @try_and_get_bool
-def rmdir(path: str):
+def rmdir(path: PathOrStr):
     """Remove dir."""
 
     shutil.rmtree(path)
@@ -87,8 +88,8 @@ def rmdir(path: str):
 
 @try_and_get_data
 def save_file(
-    path: str,
-    file: Union[bytes, io.BytesIO, io.FileIO, str],
+    path: PathOrStr,
+    file: bytes | io.BytesIO | io.FileIO | str,
     replace: bool = True
 ):
     """Save file."""
