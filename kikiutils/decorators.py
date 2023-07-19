@@ -1,8 +1,48 @@
 import time
 
+from asyncio import create_task, sleep, Task
 from functools import wraps
 from inspect import iscoroutinefunction
+from threading import Timer
 from typing import Callable
+
+
+def debounce(delay: float | int):
+    """Defers the execution of a function until it is not called again within the specified time since the last call.
+
+    Supports async and sync function.
+    """
+
+    def decorator(view_func: Callable):
+        if iscoroutinefunction(view_func):
+            task: Task = None
+
+            @wraps(view_func)
+            async def awrapped_view(*args, **kwargs):
+                nonlocal task
+
+                if task is not None:
+                    task.cancel()
+
+                async def aexec():
+                    await sleep(delay)
+                    await view_func(*args, **kwargs)
+
+                task = create_task(aexec())
+            return awrapped_view
+
+        @wraps(view_func)
+        def wrapped_view(*args, **kwargs):
+            def exec():
+                view_func(*args, **kwargs)
+
+            if hasattr(wrapped_view, '_timer'):
+                wrapped_view._timer.cancel()
+
+            wrapped_view._timer = Timer(delay, exec)
+            wrapped_view._timer.start()
+        return wrapped_view
+    return decorator
 
 
 def show_cost_time(view_func: Callable):
@@ -29,7 +69,7 @@ def show_cost_time(view_func: Callable):
     return wrapped_view
 
 
-def try_and_get_bool(view_func):
+def try_and_get_bool(view_func: Callable):
     """Run the function use try/catch.
 
     Returns False if there was an error. Otherwise return True.
@@ -58,7 +98,7 @@ def try_and_get_bool(view_func):
     return wrapped_view
 
 
-def try_and_get_data(view_func):
+def try_and_get_data(view_func: Callable):
     """Run the function use try/catch.
 
     Returns None if there was an error. Otherwise return the function result.

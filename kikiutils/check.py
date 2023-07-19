@@ -1,6 +1,8 @@
 import os
 import re
 
+from functools import wraps
+
 from .typehint import PathOrStr
 
 
@@ -28,10 +30,18 @@ domain_pattern = re.compile(
 
 # Check
 
-def isbytes(*args):
-    """Determine whether it is bytes."""
+def _base(check_type):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapped_view(*args):
+            return all([isinstance(arg, check_type) for arg in args])
+        return wrapped_view
+    return decorator
 
-    return all([isinstance(arg, bytes) for arg in args])
+
+@_base(bytes)
+def isbytes(*args) -> bool:
+    """Determine whether it is bytes."""
 
 
 def isdomain(domain: str):
@@ -50,10 +60,9 @@ def isemail(email: str):
     return domain in ALLOWED_EMAILS or isdomain(domain)
 
 
-def isdict(*args):
+@_base(dict)
+def isdict(*args) -> bool:
     """Determine whether it is dict."""
-
-    return all([isinstance(arg, dict) for arg in args])
 
 
 def isdir(*args: PathOrStr):
@@ -68,19 +77,16 @@ def isfile(*args: PathOrStr):
     return all([os.path.isfile(arg) for arg in args])
 
 
-def isint(*args):
+@_base(int)
+def isint(*args) -> bool:
     """Determine whether it is int."""
 
-    return all([isinstance(arg, int) for arg in args])
 
-
-def islist(*args):
+@_base(list)
+def islist(*args) -> bool:
     """Determine whether it is list."""
 
-    return all([isinstance(arg, list) for arg in args])
 
-
-def isstr(*args):
+@_base(str)
+def isstr(*args) -> bool:
     """Determine whether it is str."""
-
-    return all([isinstance(arg, str) for arg in args])
