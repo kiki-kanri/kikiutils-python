@@ -24,7 +24,7 @@ def random_str(min_l: int = 8, max_l: int = 8):
     return ''.join(random.choice(_RANDOM_LETTERS) for i in range(random.randint(min_l, max_l)))
 
 
-def s2b(data: BytesOrStr, encoding: str = 'utf-8'):
+def s2b(data: BytesOrStr, encoding: str = 'utf-8') -> bytes:
     """Convert string to bytes."""
 
     if isstr(data):
@@ -34,7 +34,7 @@ def s2b(data: BytesOrStr, encoding: str = 'utf-8'):
     return data
 
 
-def b2s(data: BytesOrStr, encoding: str = 'utf-8'):
+def b2s(data: BytesOrStr, encoding: str = 'utf-8') -> str:
     """Convert bytes to string."""
 
     if isbytes(data):

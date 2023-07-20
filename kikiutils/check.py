@@ -3,6 +3,7 @@ import re
 
 from functools import wraps
 from typing import Callable
+from unittest.case import _ClassInfo
 
 from .typehint import P, PathOrStr, T
 
@@ -31,7 +32,7 @@ domain_pattern = re.compile(
 
 # Check
 
-def _base(check_type):
+def _base(check_type: _ClassInfo):
     def decorator(view_func: Callable[P, T]) -> Callable[P, bool]:
         @wraps(view_func)
         def wrapped_view(*args):
@@ -41,7 +42,7 @@ def _base(check_type):
 
 
 @_base(bytes)
-def isbytes(*args):
+def isbytes(*args: object):
     """Determine whether it is bytes."""
 
 
@@ -62,7 +63,7 @@ def isemail(email: str):
 
 
 @_base(dict)
-def isdict(*args):
+def isdict(*args: object):
     """Determine whether it is dict."""
 
 
@@ -79,15 +80,15 @@ def isfile(*args: PathOrStr):
 
 
 @_base(int)
-def isint(*args):
+def isint(*args: object):
     """Determine whether it is int."""
 
 
 @_base(list)
-def islist(*args):
+def islist(*args: object):
     """Determine whether it is list."""
 
 
 @_base(str)
-def isstr(*args):
+def isstr(*args: object):
     """Determine whether it is str."""

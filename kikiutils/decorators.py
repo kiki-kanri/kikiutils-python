@@ -4,7 +4,7 @@ from asyncio import create_task, sleep, Task
 from functools import wraps
 from inspect import iscoroutinefunction
 from threading import Timer
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any, Callable, Coroutine, Optional, overload
 
 from .typehint import P, T
 
@@ -47,8 +47,11 @@ def debounce(delay: float | int):
     return decorator
 
 
+@overload
 def show_cost_time(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, T]]: ...
-def show_cost_time(view_func: Callable[P, T]) -> Callable[P, T]:
+@overload
+def show_cost_time(view_func: Callable[P, T]) -> Callable[P, T]: ...
+def show_cost_time(view_func):
     """Run the function and show cost time.
 
     Supports async and sync function.
@@ -72,8 +75,11 @@ def show_cost_time(view_func: Callable[P, T]) -> Callable[P, T]:
     return wrapped_view
 
 
+@overload
 def try_and_get_bool(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, bool]]: ...
-def try_and_get_bool(view_func: Callable[P, T]) -> Callable[P, bool]:
+@overload
+def try_and_get_bool(view_func: Callable[P, T]) -> Callable[P, bool]: ...
+def try_and_get_bool(view_func):
     """Run the function use try/catch.
 
     Returns False if there was an error. Otherwise return True.
@@ -102,8 +108,11 @@ def try_and_get_bool(view_func: Callable[P, T]) -> Callable[P, bool]:
     return wrapped_view
 
 
+@overload
 def try_and_get_data(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, Optional[T]]]: ...
-def try_and_get_data(view_func: Callable[P, T]) -> Callable[P, Optional[T]]:
+@overload
+def try_and_get_data(view_func: Callable[P, T]) -> Callable[P, Optional[T]]: ...
+def try_and_get_data(view_func):
     """Run the function use try/catch.
 
     Returns None if there was an error. Otherwise return the function result.
