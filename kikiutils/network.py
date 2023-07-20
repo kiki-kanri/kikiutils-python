@@ -1,5 +1,4 @@
 from socket import gethostbyname
-from typing import Optional
 from urllib.parse import urlparse
 
 from .check import isdomain
@@ -9,7 +8,7 @@ from .decorators import try_and_get_data
 # Network utils
 
 @try_and_get_data
-def get_domain_ip(domain: str) -> Optional[str]:
+def get_domain_ip(domain: str):
     return gethostbyname(domain)
 
 

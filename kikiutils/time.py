@@ -54,11 +54,7 @@ def now_time_utc_ms():
     return now_time_ms() + (zone_offset * 1000)
 
 
-def str_time(
-    timestamp: int,
-    str_format: str = '%Y-%m-%d %a %H:%M:%S',
-    use_zone: bool = False
-):
+def str_time(timestamp: int, str_format: str = '%Y-%m-%d %a %H:%M:%S', use_zone: bool = False):
     """Change timestamp to str time."""
 
     if use_zone:

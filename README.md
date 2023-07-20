@@ -1,3 +1,3 @@
 # kikiutils-python
 
-Utils functions for python.
+Utils decorators and functions for python.

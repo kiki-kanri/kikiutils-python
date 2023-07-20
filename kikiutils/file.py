@@ -87,11 +87,7 @@ def rmdir(path: PathOrStr):
 
 
 @try_and_get_data
-def save_file(
-    path: PathOrStr,
-    file: bytes | io.BytesIO | io.FileIO | str,
-    replace: bool = True
-):
+def save_file(path: PathOrStr, file: bytes | io.BytesIO | io.FileIO | str, replace: bool = True):
     """Save file."""
 
     mode = 'w' if isinstance(file, str) else 'wb'
@@ -104,11 +100,7 @@ def save_file(
         return f.write(file)
 
 
-def save_file_as_bytesio(
-    save_fnc: Callable,
-    get_bytes: bool = False,
-    **kwargs
-):
+def save_file_as_bytesio(save_fnc: Callable, get_bytes: bool = False, **kwargs):
     """Save file to io.BytesIO."""
 
     with io.BytesIO() as output:

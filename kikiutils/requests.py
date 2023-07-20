@@ -30,12 +30,7 @@ _HEADERS = {
 
 # Response and requests
 
-def get_request_headers(
-    url: str,
-    add_origin: bool = True,
-    referer: str = None,
-    **kwargs
-):
+def get_request_headers(url: str, add_origin: bool = True, referer: str = None, **kwargs):
     """Get requests headers."""
 
     host = get_host(url)

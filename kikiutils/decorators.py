@@ -4,7 +4,9 @@ from asyncio import create_task, sleep, Task
 from functools import wraps
 from inspect import iscoroutinefunction
 from threading import Timer
-from typing import Callable
+from typing import Any, Callable, Coroutine, Optional
+
+from .typehint import P, T
 
 
 def debounce(delay: float | int):
@@ -13,12 +15,12 @@ def debounce(delay: float | int):
     Supports async and sync function.
     """
 
-    def decorator(view_func: Callable):
+    def decorator(view_func: Callable[P, T]) -> Callable[P, None]:
         if iscoroutinefunction(view_func):
-            task: Task = None
+            task: Optional[Task] = None
 
             @wraps(view_func)
-            async def awrapped_view(*args, **kwargs):
+            def awrapped_view(*args, **kwargs):
                 nonlocal task
 
                 if task is not None:
@@ -45,7 +47,8 @@ def debounce(delay: float | int):
     return decorator
 
 
-def show_cost_time(view_func: Callable):
+def show_cost_time(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, T]]: ...
+def show_cost_time(view_func: Callable[P, T]) -> Callable[P, T]:
     """Run the function and show cost time.
 
     Supports async and sync function.
@@ -69,7 +72,8 @@ def show_cost_time(view_func: Callable):
     return wrapped_view
 
 
-def try_and_get_bool(view_func: Callable):
+def try_and_get_bool(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, bool]]: ...
+def try_and_get_bool(view_func: Callable[P, T]) -> Callable[P, bool]:
     """Run the function use try/catch.
 
     Returns False if there was an error. Otherwise return True.
@@ -98,7 +102,8 @@ def try_and_get_bool(view_func: Callable):
     return wrapped_view
 
 
-def try_and_get_data(view_func: Callable):
+def try_and_get_data(view_func: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, Optional[T]]]: ...
+def try_and_get_data(view_func: Callable[P, T]) -> Callable[P, Optional[T]]:
     """Run the function use try/catch.
 
     Returns None if there was an error. Otherwise return the function result.

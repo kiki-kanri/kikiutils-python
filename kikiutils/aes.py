@@ -3,18 +3,13 @@ from Cryptodome.Cipher.AES import block_size, MODE_CBC, MODE_CFB, MODE_CTR, MODE
 from typing import Optional
 
 from .json import odumps, oloads
+from .typehint import BytesOrStr
 
 
 class AesCrypt:
     """Padding mode is PKCS7 Padding."""
 
-    def __init__(
-        self,
-        key: bytes | str,
-        iv: Optional[bytes | str] = None,
-        mode=MODE_CBC,
-        counter=None
-    ):
+    def __init__(self, key: BytesOrStr, iv: Optional[BytesOrStr] = None, mode=MODE_CBC, counter=None):
         if isinstance(key, str):
             key = key.encode()
 
@@ -48,7 +43,7 @@ class AesCrypt:
 
         return data.encode('utf-8')
 
-    def decrypt(self, ciphertext: bytes | str) -> dict | list | str:
+    def decrypt(self, ciphertext: BytesOrStr) -> dict | list | str:
         if isinstance(ciphertext, str):
             ciphertext = ciphertext.encode('utf-8')
 

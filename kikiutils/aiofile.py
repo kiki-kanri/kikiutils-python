@@ -9,11 +9,10 @@ from .typehint import PathOrStr
 
 # Async File
 
-async def aclear_dir(path: PathOrStr):
+async def aclear_dir(path: PathOrStr) -> bool:
     """Async clear dir (Remove and create)."""
 
-    await armdir(path)
-    await amkdirs(path)
+    return await armdir(path) and await amkdirs(path)
 
 
 @try_and_get_bool
@@ -74,12 +73,7 @@ async def armdir(path: PathOrStr):
 
 
 @try_and_get_data
-async def asave_file(
-    path: PathOrStr,
-    file: bytes | io.BytesIO | io.FileIO | str,
-    replace: bool = True,
-    **kwargs
-):
+async def asave_file(path: PathOrStr, file: bytes | io.BytesIO | io.FileIO | str, replace: bool = True, **kwargs):
     """Async save file."""
 
     mode = 'w' if isinstance(file, str) else 'wb'

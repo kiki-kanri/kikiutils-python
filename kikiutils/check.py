@@ -2,8 +2,9 @@ import os
 import re
 
 from functools import wraps
+from typing import Callable
 
-from .typehint import PathOrStr
+from .typehint import P, PathOrStr, T
 
 
 ALLOWED_EMAILS = [
@@ -31,7 +32,7 @@ domain_pattern = re.compile(
 # Check
 
 def _base(check_type):
-    def decorator(view_func):
+    def decorator(view_func: Callable[P, T]) -> Callable[P, bool]:
         @wraps(view_func)
         def wrapped_view(*args):
             return all([isinstance(arg, check_type) for arg in args])
@@ -40,7 +41,7 @@ def _base(check_type):
 
 
 @_base(bytes)
-def isbytes(*args) -> bool:
+def isbytes(*args):
     """Determine whether it is bytes."""
 
 
@@ -61,7 +62,7 @@ def isemail(email: str):
 
 
 @_base(dict)
-def isdict(*args) -> bool:
+def isdict(*args):
     """Determine whether it is dict."""
 
 
@@ -78,15 +79,15 @@ def isfile(*args: PathOrStr):
 
 
 @_base(int)
-def isint(*args) -> bool:
+def isint(*args):
     """Determine whether it is int."""
 
 
 @_base(list)
-def islist(*args) -> bool:
+def islist(*args):
     """Determine whether it is list."""
 
 
 @_base(str)
-def isstr(*args) -> bool:
+def isstr(*args):
     """Determine whether it is str."""
