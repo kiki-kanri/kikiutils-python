@@ -3,10 +3,10 @@ import magic
 import os
 import shutil
 
-from typing import Callable
+from typing import Callable, Literal, overload
 
 from .decorators import try_and_get_bool, try_and_get_data
-from .typehint import PathOrStr
+from .typehint import P, PathOrStr, T
 
 
 # File
@@ -14,8 +14,7 @@ from .typehint import PathOrStr
 def clear_dir(path: PathOrStr):
     """Clear dir (Remove and create)."""
 
-    rmdir(path)
-    mkdirs(path)
+    return rmdir(path) and mkdirs(path)
 
 
 @try_and_get_bool
@@ -100,7 +99,13 @@ def save_file(path: PathOrStr, file: bytes | io.BytesIO | io.FileIO | str, repla
         return f.write(file)
 
 
-def save_file_as_bytesio(save_fnc: Callable, get_bytes: bool = False, **kwargs):
+@overload
+def save_file_as_bytesio(save_fnc: Callable[P, T], get_bytes: Literal[True], **kwargs) -> bytes: ...
+@overload
+def save_file_as_bytesio(save_fnc: Callable[P, T], get_bytes: Literal[False], **kwargs) -> io.BytesIO: ...
+@overload
+def save_file_as_bytesio(save_fnc: Callable[P, T]) -> io.BytesIO: ...
+def save_file_as_bytesio(save_fnc: Callable[P, T], get_bytes: bool = False, **kwargs):
     """Save file to io.BytesIO."""
 
     with io.BytesIO() as output:

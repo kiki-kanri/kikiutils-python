@@ -9,7 +9,7 @@ from .typehint import PathOrStr
 
 # Async File
 
-async def aclear_dir(path: PathOrStr) -> bool:
+async def aclear_dir(path: PathOrStr):
     """Async clear dir (Remove and create)."""
 
     return await armdir(path) and await amkdirs(path)
