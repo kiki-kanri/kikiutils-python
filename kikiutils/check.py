@@ -31,7 +31,7 @@ domain_pattern = re.compile(
 
 # Check
 
-def _base(check_type: _ClassInfo):
+def _base(check_type):
     def decorator(view_func: Callable[P, T]) -> Callable[P, bool]:
         @wraps(view_func)
         def wrapped_view(*args):
