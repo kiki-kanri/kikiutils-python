@@ -3,7 +3,6 @@ import re
 
 from functools import wraps
 from typing import Callable
-from unittest.case import _ClassInfo
 
 from .typehint import P, PathOrStr, T
 
