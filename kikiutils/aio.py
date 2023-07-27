@@ -17,7 +17,7 @@ def run_loop_forever_and_wait_signals(loop: AbstractEventLoop = None, clean_up: 
     if loop is None:
         loop = get_event_loop()
 
-    future = Future()
+    future = Future(loop=loop)
     signal_handler = lambda: future.done() or future.set_result(None)
     loop.add_signal_handler(signal.SIGINT, signal_handler)
     loop.add_signal_handler(signal.SIGTERM, signal_handler)
