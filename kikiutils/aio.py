@@ -2,6 +2,8 @@ import signal
 
 from asyncio import AbstractEventLoop, all_tasks, Future, get_event_loop, sleep
 
+from .log import logger
+
 
 def run_loop_forever_and_wait_signals(loop: AbstractEventLoop = None, clean_up: bool = True):
     """
@@ -25,6 +27,7 @@ def run_loop_forever_and_wait_signals(loop: AbstractEventLoop = None, clean_up: 
 
     if clean_up:
         while tasks := [t for t in all_tasks(loop) if not t.cancelled()]:
+            logger.info(f'Waiting for {len(tasks)} tasks stop...')
             [task.cancel() for task in tasks]
             loop.run_until_complete(sleep(1))
 
